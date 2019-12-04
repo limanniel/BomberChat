@@ -29,19 +29,24 @@ namespace SimpleClientServer
 
     public class SimpleClient
     {
-        TcpClient _tcpClient;
-        UdpClient _udpClient;
-        NetworkStream _stream;
-        BinaryWriter _writer;
-        BinaryReader _reader;
-        Thread _readerThread;
-        Thread _udpServerProcess;
+        string _nickname = "";
         ClientForm _messageForm;
-        IPEndPoint _ipEndPoint;
+        SetNicknameForm _nicknameForm;
+
+        // TCP
+        TcpClient _tcpClient;
+        Thread _readerThread;
+        NetworkStream _tcpStream;
+        BinaryWriter _tcpWriter;
+        BinaryReader _tcpReader;
+        // UDP
+        UdpClient _udpClient;
+        Thread _udpServerProcess;
 
         public SimpleClient()
         {
             _messageForm = new ClientForm(this);
+            _nicknameForm = new SetNicknameForm(this);
         }
 
         public bool Connect(string ipAddress, int port)
@@ -49,15 +54,14 @@ namespace SimpleClientServer
             _tcpClient = new TcpClient();
             _udpClient = new UdpClient();
             _readerThread = new Thread(new ThreadStart(ProcessServerResponse));
-            //_ipEndPoint = new IPEndPoint(IPAddress.Parse(ipAddress), 4444);
 
             try
             {
                 _tcpClient.Connect(ipAddress, port);
+                _tcpStream = _tcpClient.GetStream();
+                _tcpWriter = new BinaryWriter(_tcpStream, Encoding.UTF8);
+                _tcpReader = new BinaryReader(_tcpStream, Encoding.UTF8);
                 _udpClient.Connect(ipAddress, port);
-                _stream = _tcpClient.GetStream();
-                _writer = new BinaryWriter(_stream, Encoding.UTF8);
-                _reader = new BinaryReader(_stream, Encoding.UTF8);
             }
             catch (Exception e)
             {
@@ -65,6 +69,15 @@ namespace SimpleClientServer
                 return false;
             }
 
+            // Display Set Nickname window
+            _nicknameForm.Owner = _messageForm;
+            _nicknameForm.StartPosition = FormStartPosition.CenterParent;
+            do
+            {
+                _nicknameForm.ShowDialog();
+            } while (_nickname == "");
+
+            // Display Chat window
             Application.Run(_messageForm);
 
             if (!_readerThread.IsAlive)
@@ -85,7 +98,6 @@ namespace SimpleClientServer
         void ProcessServerResponse()
         {
             Packet packet;
-           // SendPacketTCP(new LoginPacket(_ipEndPoint));
 
             while ((packet = RetrievePacketTCP()) != null)
             {
@@ -95,8 +107,10 @@ namespace SimpleClientServer
                         ChatMessagePacket chPck = (ChatMessagePacket)packet;
                         _messageForm.UpdateChatWindow(chPck._message);
                         break;
+
                     case PacketType.NICKNAME:
                         break;
+
                     case PacketType.LOGIN:
                         LoginPacket lgnPacket = (LoginPacket)packet;
                         _udpClient.Connect((IPEndPoint)lgnPacket._endPoint);
@@ -104,6 +118,7 @@ namespace SimpleClientServer
                         _udpServerProcess.Start();
                         Console.Write("UDP CONNECTED?");
                         break;
+
                     default:
                         break;
                 }
@@ -117,10 +132,17 @@ namespace SimpleClientServer
 
         public void SendMessage(string message)
         {
-            Packet packet = new ChatMessagePacket(message);
+            string prefixedMessage = _nickname + " says: " + message;
+            Packet packet = new ChatMessagePacket(prefixedMessage);
             SendPacketTCP(packet);
 
             Console.WriteLine("SEND!");
+        }
+
+        public void SetNickname(string nickname)
+        {
+            _nickname = nickname;
+            Console.WriteLine("Nickname set to: " + _nickname);
         }
 
         public void Stop()
@@ -136,18 +158,18 @@ namespace SimpleClientServer
             bf.Serialize(ms, packet);
             byte[] buffer = ms.GetBuffer();
 
-            _writer.Write(buffer.Length);
-            _writer.Write(buffer);
-            _writer.Flush();
+            _tcpWriter.Write(buffer.Length);
+            _tcpWriter.Write(buffer);
+            _tcpWriter.Flush();
         }
 
         public Packet RetrievePacketTCP()
         {
             int noOfIncomingBytes;
 
-            while ((noOfIncomingBytes = _reader.ReadInt32()) != 0)
+            while ((noOfIncomingBytes = _tcpReader.ReadInt32()) != 0)
             {
-                byte[] buffer = _reader.ReadBytes(noOfIncomingBytes);
+                byte[] buffer = _tcpReader.ReadBytes(noOfIncomingBytes);
                 MemoryStream ms = new MemoryStream(buffer);
                 BinaryFormatter bf = new BinaryFormatter();
                 Packet packet = (Packet)bf.Deserialize(ms);

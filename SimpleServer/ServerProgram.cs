@@ -52,7 +52,7 @@ namespace SimpleServer
                     Console.WriteLine("Connection established!");
                     Client c = new Client(socket);
                     _clients.Add(c);
-                    Thread t = new Thread(new ParameterizedThreadStart(ClientMethod));
+                    Thread t = new Thread(new ParameterizedThreadStart(TCPClientMethod));
                     t.Start(c);
 
                     Console.WriteLine("Clients: " + _clients.Count);
@@ -65,25 +65,29 @@ namespace SimpleServer
             _tcpListener.Stop();
         }
 
-        private void ClientMethod(object clientObj)
+        private void TCPClientMethod(object clientObj)
         {
             Client client = (Client)clientObj;
             Packet packet;
 
             try
             {
-                while ((packet = RetrievePacket(client)) != null)
+                while ((packet = client.RetrievePacketTCP(client)) != null)
                 {
                     switch (packet.getPacketType())
                     {
                         case PacketType.CHATMESSAGE:
                             foreach (Client fClient in _clients)
                             {
-                                SendPacket(packet, fClient);
+                                client.SendPacketTCP(packet, fClient);
                             }
                             break;
 
                         case PacketType.NICKNAME:
+                            break;
+
+                        case PacketType.LOGIN:
+                            HandleLoginPacket(client, (LoginPacket)packet);
                             break;
 
                         default:
@@ -100,7 +104,109 @@ namespace SimpleServer
             }
         }
 
-        public void SendPacket(Packet packet, Client client)
+        void HandleLoginPacket(Client client, LoginPacket loginpacket)
+        {
+            client.UDPConnect(loginpacket._endPoint);
+            client.SendPacketTCP(new LoginPacket(client._udpSocket.LocalEndPoint), client);
+            Thread u = new Thread(new ParameterizedThreadStart(UDPClientMethod));
+            u.Start(client);
+        }
+
+        private void UDPClientMethod(object clientObj)
+        {
+            Client client = (Client)clientObj;
+            Packet packet;
+
+            while ((packet = client.UDPRead(client)) != null)
+            {
+                switch (packet.getPacketType())
+                {
+                    //case PacketType.LOGIN:
+
+                    //    foreach(Client fClient in _clients)
+                    //    {
+                    //        client.SendPacketTCP(packet, fClient);
+                    //    }
+                    //    break;
+
+                    default:
+                        break;
+                }
+            }
+        }
+    }
+
+    class Client
+    {
+        Socket _socket;
+        public Socket _udpSocket;
+        NetworkStream _stream;
+
+        public BinaryReader Reader { get; private set; }
+        public BinaryWriter Writer { get; private set; }
+
+        public Client(Socket socket)
+        {
+            _socket = socket;
+            _udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+            _stream = new NetworkStream(socket);
+            Reader = new BinaryReader(_stream, Encoding.UTF8);
+            Writer = new BinaryWriter(_stream, Encoding.UTF8);
+        }
+
+        public void Close()
+        {
+            _socket.Close();
+        }
+
+        public void UDPConnect(EndPoint clientConnection)
+        {
+            _udpSocket.Connect(clientConnection);
+            Packet loginPacket = new LoginPacket(_udpSocket.LocalEndPoint);
+            UDPSend(loginPacket);
+        }
+
+        public void UDPSend(Packet packet)
+        {
+            MemoryStream ms = new MemoryStream();
+            BinaryFormatter bf = new BinaryFormatter();
+            bf.Serialize(ms, packet);
+            byte[] buffer = ms.GetBuffer();
+
+            _udpSocket.Send(buffer);
+        }
+
+        public Packet UDPRead(Client client)
+        {
+            int noOfIncomingBytes;
+            byte[] buffer = new byte[256];
+            if ((noOfIncomingBytes = _udpSocket.Receive(buffer)) != 0)
+            {
+                client._udpSocket.Receive(buffer);
+                MemoryStream ms = new MemoryStream(buffer);
+                BinaryFormatter bf = new BinaryFormatter();
+                Packet packet = (Packet)bf.Deserialize(ms);
+                return packet;
+            }
+            return null;    
+        }
+
+        public Packet RetrievePacketTCP(Client client)
+        {
+            int noOfIncomingBytes;
+
+            while ((noOfIncomingBytes = client.Reader.ReadInt32()) != 0)
+            {
+                byte[] buffer = client.Reader.ReadBytes(noOfIncomingBytes);
+                MemoryStream ms = new MemoryStream(buffer);
+                BinaryFormatter bf = new BinaryFormatter();
+                Packet packet = bf.Deserialize(ms) as Packet;
+                return packet;
+            }
+            return null;
+        }
+
+        public void SendPacketTCP(Packet packet, Client client)
         {
             MemoryStream ms = new MemoryStream();
             BinaryFormatter bf = new BinaryFormatter();
@@ -110,41 +216,6 @@ namespace SimpleServer
             client.Writer.Write(buffer.Length);
             client.Writer.Write(buffer);
             client.Writer.Flush();
-        }
-        public Packet RetrievePacket(Client client)
-        {
-            int noOfIncomingBytes;
-
-            while ((noOfIncomingBytes = client.Reader.ReadInt32()) != 0)
-            {
-                byte[] buffer = client.Reader.ReadBytes(noOfIncomingBytes);
-                MemoryStream ms = new MemoryStream(buffer);
-                BinaryFormatter bf = new BinaryFormatter();
-                Packet packet = (Packet)bf.Deserialize(ms);
-                return packet;
-            }
-            return null;
-        }
-    }
-
-    class Client
-    {
-        Socket _socket;
-        NetworkStream _stream;
-
-        public BinaryReader Reader { get; private set; }
-        public BinaryWriter Writer { get; private set; }
-
-        public Client(Socket socket)
-        {
-            _socket = socket;
-            _stream = new NetworkStream(socket);
-            Reader = new BinaryReader(_stream, Encoding.UTF8);
-            Writer = new BinaryWriter(_stream, Encoding.UTF8);
-        }
-        public void Close()
-        {
-            _socket.Close();
         }
     }
 }

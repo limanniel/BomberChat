@@ -37,6 +37,7 @@
             // 
             this.messageDisplayBox.Location = new System.Drawing.Point(12, 12);
             this.messageDisplayBox.Name = "messageDisplayBox";
+            this.messageDisplayBox.ReadOnly = true;
             this.messageDisplayBox.Size = new System.Drawing.Size(776, 353);
             this.messageDisplayBox.TabIndex = 0;
             this.messageDisplayBox.Text = "";
@@ -61,6 +62,7 @@
             // 
             // ClientForm
             // 
+            this.AcceptButton = this.sendMessageButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
@@ -68,7 +70,7 @@
             this.Controls.Add(this.chatSendBox);
             this.Controls.Add(this.messageDisplayBox);
             this.Name = "ClientForm";
-            this.Text = "UserGUI";
+            this.Text = "Chat Window";
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ClientForm_FormClosed);
             this.Load += new System.EventHandler(this.ClientForm_Load);
             this.ResumeLayout(false);
