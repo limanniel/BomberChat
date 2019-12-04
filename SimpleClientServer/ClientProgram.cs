@@ -34,10 +34,13 @@ namespace SimpleClientServer
         BinaryReader _reader;
         Thread _readerThread;
         ClientForm _messageForm;
+        SetNicknameForm _nicknameForm;
+        string _nickname;
 
         public SimpleClient()
         {
             _messageForm = new ClientForm(this);
+            _nicknameForm = new SetNicknameForm(this);
         }
 
         public bool Connect(string ipAddress, int port)
@@ -58,6 +61,11 @@ namespace SimpleClientServer
                 return false;
             }
 
+            // Spawn nickname set dialog in center of chat window
+            _nicknameForm.Owner = _messageForm;
+            _nicknameForm.StartPosition = FormStartPosition.CenterParent;
+            _nicknameForm.ShowDialog();
+            // Spawn chat window
             Application.Run(_messageForm);
 
             if (!_readerThread.IsAlive)
@@ -99,6 +107,12 @@ namespace SimpleClientServer
             SendPacket(packet);
 
             Console.WriteLine("SEND!");
+        }
+
+        public void SetNickname(string nickname)
+        {
+            _nickname = nickname;
+            Console.WriteLine("Nickname set to: " + _nickname);
         }
 
         public void Stop()

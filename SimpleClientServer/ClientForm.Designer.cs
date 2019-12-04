@@ -48,6 +48,7 @@
             this.chatSendBox.Size = new System.Drawing.Size(657, 37);
             this.chatSendBox.TabIndex = 1;
             this.chatSendBox.Text = "";
+            this.chatSendBox.TextChanged += new System.EventHandler(this.chatSendBox_TextChanged);
             // 
             // sendMessageButton
             // 

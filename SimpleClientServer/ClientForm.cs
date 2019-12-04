@@ -55,5 +55,10 @@ namespace SimpleClientServer
             chatSendBox.Clear();
             chatSendBox.Focus();
         }
+
+        private void chatSendBox_TextChanged(object sender, EventArgs e)
+        {
+
+        }
     }
 }
