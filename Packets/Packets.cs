@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Collections.Generic;
 
 namespace Packets
 {
@@ -8,7 +9,8 @@ namespace Packets
         EMPTY = 0,
         NICKNAME,
         CHATMESSAGE,
-        LOGIN
+        LOGIN,
+        NICKNAMESLIST
     }
 
     [Serializable]
@@ -30,13 +32,13 @@ namespace Packets
     }
 
     [Serializable]
-    public class NickNamePacket : Packet
+    public class NicknamePacket : Packet
     {
-        public string _nickName = string.Empty;
-        public NickNamePacket(string nickname)
+        public string _nickname = string.Empty;
+        public NicknamePacket(string nickname)
         {
             _type = PacketType.NICKNAME;
-            _nickName = nickname;
+            _nickname = nickname;
         }
     }
 
@@ -48,6 +50,18 @@ namespace Packets
         {
             _type = PacketType.LOGIN;
             _endPoint = endpoint;
+        }
+    }
+
+    [Serializable]
+    public class NicknamesList : Packet
+    {
+        public List<string> _nicknamesList;
+
+        public NicknamesList(List<string> list)
+        {
+            _type = PacketType.NICKNAMESLIST;
+            _nicknamesList = list;
         }
     }
 }

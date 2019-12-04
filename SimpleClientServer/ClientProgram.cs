@@ -6,6 +6,7 @@ using System.Threading;
 using System.Windows.Forms;
 using Packets;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Collections.Generic;
 using System.Net;
 
 namespace SimpleClientServer
@@ -32,6 +33,7 @@ namespace SimpleClientServer
         string _nickname = "";
         ClientForm _messageForm;
         SetNicknameForm _nicknameForm;
+        List<string> _nicknamesList;
 
         // TCP
         TcpClient _tcpClient;
@@ -42,6 +44,7 @@ namespace SimpleClientServer
         // UDP
         UdpClient _udpClient;
         Thread _udpServerProcess;
+        IPEndPoint _remoteIpEndPoint;
 
         public SimpleClient()
         {
@@ -62,6 +65,7 @@ namespace SimpleClientServer
                 _tcpWriter = new BinaryWriter(_tcpStream, Encoding.UTF8);
                 _tcpReader = new BinaryReader(_tcpStream, Encoding.UTF8);
                 _udpClient.Connect(ipAddress, port);
+                _remoteIpEndPoint = new IPEndPoint(IPAddress.Any, 0);
             }
             catch (Exception e)
             {
@@ -92,7 +96,10 @@ namespace SimpleClientServer
         {
             Console.WriteLine("STARTED");
             _readerThread.Start();
+            // Log-in UDP
             SendPacketTCP(new LoginPacket(_udpClient.Client.LocalEndPoint));
+            // Send initial nicknames of the client
+            SendPacketTCP(new NicknamePacket(_nickname));
         }
 
         void ProcessServerResponse()
@@ -128,6 +135,20 @@ namespace SimpleClientServer
         void ProcessServerResponseUDP()
         {
             Console.WriteLine("UDP KILLED MY DOG!");
+            Packet packet;
+
+            packet = ReadPacketUDP(ref _remoteIpEndPoint);
+
+            switch (packet.getPacketType())
+            {
+                case PacketType.NICKNAMESLIST:
+                    Console.WriteLine("MOM I DID IT!!");
+                    _nicknamesList = (packet as NicknamesList)._nicknamesList;
+                    break;
+
+                default:
+                    break;
+            }
         }
 
         public void SendMessage(string message)
@@ -185,12 +206,12 @@ namespace SimpleClientServer
             bf.Serialize(ms, packet);
             byte[] buffer = ms.GetBuffer();
 
-            _udpClient.Send(buffer, 256);
+            _udpClient.Send(buffer, buffer.Length);
         }
 
         public Packet ReadPacketUDP(ref IPEndPoint endpointref)
         {
-            _udpClient.Receive(ref endpointref);
+            //_udpClient.Receive(ref endpointref);
             byte[] buffer = _udpClient.Receive(ref endpointref);
             MemoryStream ms = new MemoryStream(buffer);
             BinaryFormatter bf = new BinaryFormatter();
