@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 namespace Packets
 {
@@ -6,7 +7,8 @@ namespace Packets
     {
         EMPTY = 0,
         NICKNAME,
-        CHATMESSAGE
+        CHATMESSAGE,
+        LOGIN
     }
 
     [Serializable]
@@ -35,6 +37,17 @@ namespace Packets
         {
             _type = PacketType.NICKNAME;
             _nickName = nickname;
+        }
+    }
+
+    [Serializable]
+    public class LoginPacket : Packet
+    {
+        public EndPoint _endPoint;
+        public LoginPacket(EndPoint endpoint)
+        {
+            _type = PacketType.LOGIN;
+            _endPoint = endpoint;
         }
     }
 }
