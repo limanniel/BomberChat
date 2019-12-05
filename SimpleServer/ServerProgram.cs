@@ -23,6 +23,7 @@ namespace SimpleServer
     class Server
     {
         TcpListener _tcpListener;
+        Socket _tcpSocket;
         IPAddress _iPAddress;
         List<Client> _clients;
         List<string> _clientsNicknames;
@@ -34,7 +35,7 @@ namespace SimpleServer
             _iPAddress = IPAddress.Parse(ipAddress);
             try
             {
-                _tcpListener = new TcpListener(_iPAddress, 4444);
+                _tcpListener = new TcpListener(_iPAddress, port);
             }
             catch (Exception e)
             {
@@ -47,12 +48,12 @@ namespace SimpleServer
             _tcpListener.Start();
             while (true)
             {
-                Socket socket = _tcpListener.AcceptSocket();
+                 _tcpSocket = _tcpListener.AcceptSocket();
 
-                if (socket.Connected)
+                if (_tcpSocket.Connected)
                 {
                     Console.WriteLine("Connection established!");
-                    Client c = new Client(socket);
+                    Client c = new Client(_tcpSocket);
                     _clients.Add(c);
                     Thread t = new Thread(new ParameterizedThreadStart(TCPClientMethod));
                     t.Start(c);
@@ -86,7 +87,7 @@ namespace SimpleServer
                             break;
 
                         case PacketType.NICKNAME:
-                            client.Nickname = (packet as NicknamePacket)._nickname;
+                            client._nickname = (packet as NicknamePacket)._nickname;
                             UpdateClientsNicknameList();
                             break;
 
@@ -105,6 +106,7 @@ namespace SimpleServer
                 _clients.Remove(client);
                 Console.WriteLine("Client Disconnected!");
                 Console.WriteLine("Clients: " + _clients.Count);
+                UpdateClientsNicknameList();
             }
         }
 
@@ -121,27 +123,12 @@ namespace SimpleServer
             Client client = (Client)clientObj;
             Packet packet;
 
-            foreach (Client fClient in _clients)
+            while (true)
             {
-                fClient.UDPSend(new NicknamesList(_clientsNicknames));
+                client.UDPSend(new NicknamesList(_clientsNicknames));
+                Thread.Sleep(1000);
             }
 
-            //while ((packet = client.UDPRead(client)) != null)
-            //{
-            //    switch (packet.getPacketType())
-            //    {
-            //        //case PacketType.LOGIN:
-
-            //        //    foreach(Client fClient in _clients)
-            //        //    {
-            //        //        client.SendPacketTCP(packet, fClient);
-            //        //    }
-            //        //    break;
-
-            //        default:
-            //            break;
-            //    }
-            //}
         }
 
         void UpdateClientsNicknameList()
@@ -149,7 +136,7 @@ namespace SimpleServer
             _clientsNicknames.Clear(); // Clear current list
             foreach (Client client in _clients)
             {
-                _clientsNicknames.Add(client.Nickname);
+                _clientsNicknames.Add(client._nickname);
             }
         }
     }
@@ -158,12 +145,11 @@ namespace SimpleServer
     {
         Socket _socket;
         NetworkStream _stream;
-        string _nickname;
         public Socket _udpSocket;
 
+        public string _nickname { get; set; }
         public BinaryReader Reader { get; private set; }
         public BinaryWriter Writer { get; private set; }
-        public string Nickname { get; set; }
 
         public Client(Socket socket)
         {
@@ -182,8 +168,6 @@ namespace SimpleServer
         public void UDPConnect(EndPoint clientConnection)
         {
             _udpSocket.Connect(clientConnection);
-            //Packet loginPacket = new LoginPacket(_udpSocket.LocalEndPoint);
-            //UDPSend(loginPacket);
         }
 
         public void UDPSend(Packet packet)

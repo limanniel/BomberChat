@@ -37,13 +37,13 @@ namespace SimpleClientServer
 
         // TCP
         TcpClient _tcpClient;
-        Thread _readerThread;
+        Thread _tcpReaderThread;
         NetworkStream _tcpStream;
         BinaryWriter _tcpWriter;
         BinaryReader _tcpReader;
         // UDP
         UdpClient _udpClient;
-        Thread _udpServerProcess;
+        Thread _udpReaderThread;
         IPEndPoint _remoteIpEndPoint;
 
         public SimpleClient()
@@ -56,8 +56,17 @@ namespace SimpleClientServer
         {
             _tcpClient = new TcpClient();
             _udpClient = new UdpClient();
-            _readerThread = new Thread(new ThreadStart(ProcessServerResponse));
+            _tcpReaderThread = new Thread(new ThreadStart(ProcessServerResponse));
 
+            // Display Set Nickname window
+            _nicknameForm.Owner = _messageForm;
+            _nicknameForm.StartPosition = FormStartPosition.CenterParent;
+            do
+            {
+                _nicknameForm.ShowDialog();
+            } while (_nickname == "");
+
+            // Try to connect to a server with tcp and then establish handshake to udp
             try
             {
                 _tcpClient.Connect(ipAddress, port);
@@ -73,18 +82,10 @@ namespace SimpleClientServer
                 return false;
             }
 
-            // Display Set Nickname window
-            _nicknameForm.Owner = _messageForm;
-            _nicknameForm.StartPosition = FormStartPosition.CenterParent;
-            do
-            {
-                _nicknameForm.ShowDialog();
-            } while (_nickname == "");
-
             // Display Chat window
             Application.Run(_messageForm);
 
-            if (!_readerThread.IsAlive)
+            if (!_tcpReaderThread.IsAlive)
             {
                 return false;
             }
@@ -95,10 +96,10 @@ namespace SimpleClientServer
         public void Run()
         {
             Console.WriteLine("STARTED");
-            _readerThread.Start();
+            _tcpReaderThread.Start();
             // Log-in UDP
             SendPacketTCP(new LoginPacket(_udpClient.Client.LocalEndPoint));
-            // Send initial nicknames of the client
+            // Send initial nickname of the client
             SendPacketTCP(new NicknamePacket(_nickname));
         }
 
@@ -121,9 +122,9 @@ namespace SimpleClientServer
                     case PacketType.LOGIN:
                         LoginPacket lgnPacket = (LoginPacket)packet;
                         _udpClient.Connect((IPEndPoint)lgnPacket._endPoint);
-                        _udpServerProcess = new Thread(new ThreadStart(ProcessServerResponseUDP));
-                        _udpServerProcess.Start();
-                        Console.Write("UDP CONNECTED?");
+                        _udpReaderThread = new Thread(new ThreadStart(ProcessServerResponseUDP));
+                        _udpReaderThread.Start();
+                        Console.WriteLine("UDP CONNECTED!");
                         break;
 
                     default:
@@ -134,20 +135,23 @@ namespace SimpleClientServer
 
         void ProcessServerResponseUDP()
         {
-            Console.WriteLine("UDP KILLED MY DOG!");
             Packet packet;
-
-            packet = ReadPacketUDP(ref _remoteIpEndPoint);
-
-            switch (packet.getPacketType())
+            if (_udpClient.Client.Connected)
             {
-                case PacketType.NICKNAMESLIST:
-                    Console.WriteLine("MOM I DID IT!!");
-                    _nicknamesList = (packet as NicknamesList)._nicknamesList;
-                    break;
+                while((packet = ReadPacketUDP(ref _remoteIpEndPoint)) != null)
+                {
+                    switch (packet.getPacketType())
+                    {
+                        case PacketType.NICKNAMESLIST:
+                            _nicknamesList = (packet as NicknamesList)._nicknamesList;
+                            _messageForm.UpdateNicknamesList(ref _nicknamesList);
+                            break;
 
-                default:
-                    break;
+                        default:
+                            break;
+                    }
+                }
+
             }
         }
 
@@ -168,7 +172,8 @@ namespace SimpleClientServer
 
         public void Stop()
         {
-            _readerThread.Abort();
+            _udpReaderThread.Abort();
+            _tcpReaderThread.Abort();
             _tcpClient.Close();
         }
 
@@ -211,7 +216,6 @@ namespace SimpleClientServer
 
         public Packet ReadPacketUDP(ref IPEndPoint endpointref)
         {
-            //_udpClient.Receive(ref endpointref);
             byte[] buffer = _udpClient.Receive(ref endpointref);
             MemoryStream ms = new MemoryStream(buffer);
             BinaryFormatter bf = new BinaryFormatter();

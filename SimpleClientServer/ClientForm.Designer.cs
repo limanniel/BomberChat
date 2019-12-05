@@ -31,6 +31,8 @@
             this.messageDisplayBox = new System.Windows.Forms.RichTextBox();
             this.chatSendBox = new System.Windows.Forms.RichTextBox();
             this.sendMessageButton = new System.Windows.Forms.Button();
+            this.NicknamesList = new System.Windows.Forms.ListBox();
+            this.label1 = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // messageDisplayBox
@@ -38,7 +40,7 @@
             this.messageDisplayBox.Location = new System.Drawing.Point(12, 12);
             this.messageDisplayBox.Name = "messageDisplayBox";
             this.messageDisplayBox.ReadOnly = true;
-            this.messageDisplayBox.Size = new System.Drawing.Size(776, 353);
+            this.messageDisplayBox.Size = new System.Drawing.Size(556, 353);
             this.messageDisplayBox.TabIndex = 0;
             this.messageDisplayBox.Text = "";
             // 
@@ -60,12 +62,32 @@
             this.sendMessageButton.UseVisualStyleBackColor = true;
             this.sendMessageButton.Click += new System.EventHandler(this.SendMessageButton_Click);
             // 
+            // NicknamesList
+            // 
+            this.NicknamesList.FormattingEnabled = true;
+            this.NicknamesList.Location = new System.Drawing.Point(578, 38);
+            this.NicknamesList.Name = "NicknamesList";
+            this.NicknamesList.Size = new System.Drawing.Size(210, 329);
+            this.NicknamesList.TabIndex = 3;
+            // 
+            // label1
+            // 
+            this.label1.AutoSize = true;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(574, 10);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(110, 20);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "Active Users";
+            // 
             // ClientForm
             // 
             this.AcceptButton = this.sendMessageButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.label1);
+            this.Controls.Add(this.NicknamesList);
             this.Controls.Add(this.sendMessageButton);
             this.Controls.Add(this.chatSendBox);
             this.Controls.Add(this.messageDisplayBox);
@@ -74,6 +96,7 @@
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ClientForm_FormClosed);
             this.Load += new System.EventHandler(this.ClientForm_Load);
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
@@ -82,5 +105,7 @@
         private System.Windows.Forms.RichTextBox messageDisplayBox;
         private System.Windows.Forms.RichTextBox chatSendBox;
         private System.Windows.Forms.Button sendMessageButton;
+        private System.Windows.Forms.ListBox NicknamesList;
+        private System.Windows.Forms.Label label1;
     }
 }

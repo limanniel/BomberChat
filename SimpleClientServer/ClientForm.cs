@@ -1,11 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace SimpleClientServer
@@ -13,7 +7,9 @@ namespace SimpleClientServer
     public partial class ClientForm : Form
     {
         delegate void UpdateChatWindowDelegate(string message);
+        delegate void UpdateNicknamesListDelegate(ref List<string> nicknamesList);
         UpdateChatWindowDelegate updateChatWindowDelegate;
+        UpdateNicknamesListDelegate updateNicknamesDelegate;
         SimpleClient client;
 
         public ClientForm(SimpleClient client)
@@ -21,6 +17,7 @@ namespace SimpleClientServer
             this.client = client;
             InitializeComponent();
             updateChatWindowDelegate = new UpdateChatWindowDelegate(UpdateChatWindow);
+            updateNicknamesDelegate = new UpdateNicknamesListDelegate(UpdateNicknamesList);
             chatSendBox.Select();
         }
 
@@ -36,6 +33,25 @@ namespace SimpleClientServer
                 messageDisplayBox.SelectionStart = messageDisplayBox.Text.Length;
                 messageDisplayBox.ScrollToCaret();
                 messageDisplayBox.Text += "\n";
+            }
+        }
+
+        public void UpdateNicknamesList(ref List<string> nicknamesList)
+        {
+            if (messageDisplayBox.InvokeRequired)
+            {
+                Invoke(updateNicknamesDelegate, nicknamesList);
+            }
+            else
+            {
+                // Clear Previous Nicknames
+                NicknamesList.Items.Clear();
+                // Populate List with new nicknames
+                foreach (string nickname in nicknamesList)
+                {
+                    NicknamesList.Items.Add(nickname);
+                }
+
             }
         }
 
