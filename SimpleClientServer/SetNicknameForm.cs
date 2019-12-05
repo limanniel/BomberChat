@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace SimpleClientServer
+namespace SimpleServer
 {
     public partial class SetNicknameForm : Form
     {

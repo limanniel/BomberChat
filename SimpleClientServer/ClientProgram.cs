@@ -9,7 +9,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
 using System.Net;
 
-namespace SimpleClientServer
+namespace SimpleServer
 {
     class ClientProgram
     {
@@ -140,10 +140,12 @@ namespace SimpleClientServer
             {
                 while((packet = ReadPacketUDP(ref _remoteIpEndPoint)) != null)
                 {
+                    // Process received udp packet
                     switch (packet.getPacketType())
                     {
                         case PacketType.NICKNAMESLIST:
                             _nicknamesList = (packet as NicknamesList)._nicknamesList;
+                            Console.WriteLine("test");
                             _messageForm.UpdateNicknamesList(ref _nicknamesList);
                             break;
 
@@ -157,8 +159,8 @@ namespace SimpleClientServer
 
         public void SendMessage(string message)
         {
-            string prefixedMessage = _nickname + " says: " + message;
-            Packet packet = new ChatMessagePacket(prefixedMessage);
+            //string prefixedMessage = _nickname + " says: " + message;
+            Packet packet = new ChatMessagePacket(message);
             SendPacketTCP(packet);
 
             Console.WriteLine("SEND!");

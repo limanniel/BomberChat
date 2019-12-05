@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace SimpleClientServer
+namespace SimpleServer
 {
     public partial class ClientForm : Form
     {

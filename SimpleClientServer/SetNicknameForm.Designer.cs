@@ -1,4 +1,4 @@
-﻿namespace SimpleClientServer
+﻿namespace SimpleServer
 {
     partial class SetNicknameForm
     {
