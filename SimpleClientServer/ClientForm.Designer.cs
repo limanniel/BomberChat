@@ -64,10 +64,12 @@
             // 
             // NicknamesList
             // 
+            this.NicknamesList.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.NicknamesList.FormattingEnabled = true;
+            this.NicknamesList.ItemHeight = 20;
             this.NicknamesList.Location = new System.Drawing.Point(578, 38);
             this.NicknamesList.Name = "NicknamesList";
-            this.NicknamesList.Size = new System.Drawing.Size(210, 329);
+            this.NicknamesList.Size = new System.Drawing.Size(210, 324);
             this.NicknamesList.TabIndex = 3;
             // 
             // label1

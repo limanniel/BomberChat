@@ -8,10 +8,10 @@ namespace SimpleServer
 {
     class Hangman
     {
+        int _countOfTries;
         string _word; // Chosen word to guess
         StringBuilder _internalObscuredWord; // Underscore hidden word equivalement of the word 
         string _externalObscuredWord; // Underscore whitespace separated obscured word
-        int _countOfTries;
         string[] _hangmanStages = new string[]
         {
             "",
@@ -67,14 +67,21 @@ namespace SimpleServer
               |
               |",
         }; // Contains stages of hangman drawing
+        string[] _wordsDictionary = new string[] 
+        {
+            "exodus", "banjo", "crypt", "jukebox"
+        };
 
         public Hangman()
         {
             _countOfTries = 0;
-            _word = "corbin";
+            // Pick random word from word dictionary
+            Random rand = new Random();
+            //_word = _wordsDictionary[rand.Next(0, _wordsDictionary.Length)];
+            _word = "seex";
+            // Init internal obscured word
             _internalObscuredWord = new StringBuilder();
             _internalObscuredWord.Insert(0, "_", _word.Length);
-
             // Init external obscureword for chat message representation
             UpdateObscuredWord(_internalObscuredWord);
         }
@@ -93,10 +100,16 @@ namespace SimpleServer
             // Message contains letter sent by client
             else if (_word.Contains(clientMessage))
             {
-                //StringBuilder sb = new StringBuilder(_internalObscuredWord);
                 char[] charMessage = clientMessage.ToCharArray();
                 int index = _word.IndexOf(clientMessage);
-                _internalObscuredWord[index] = charMessage[0];
+                //_internalObscuredWord[index] = charMessage[0];
+                for (int i = 0; i < _word.Length; i++)
+                {
+                    if (_word[i] == charMessage[0])
+                    {
+                        _internalObscuredWord[i] = charMessage[0];
+                    }
+                }
 
                 // last correct letter sent, obscured word is revealed
                 if (_internalObscuredWord.ToString() == _word)

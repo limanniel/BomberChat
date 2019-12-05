@@ -93,7 +93,6 @@ namespace SimpleServer
                             // Check if hangman game is active already
                             if (!_isHangmanActive)
                             {
-                                Console.WriteLine("HANGMAN!");
                                 _isHangmanActive = true;
                                 _hangmanGame = new Hangman();
                                 foreach (Client fClient in _clients)
