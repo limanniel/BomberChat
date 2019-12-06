@@ -12,6 +12,7 @@ namespace Bomberman
         Rectangle _sourceRect;
         Vector2 _position;
         const float _CHARACTER_SPEED = 0.5f;
+        public bool _activated {get; set;}
 
         public Bomberman_Character(ContentManager contentManager)
         {
@@ -23,22 +24,25 @@ namespace Bomberman
 
         public void Update(GameTime gameTime)
         {
-            KeyboardState kbState = Keyboard.GetState();
-            if (kbState.IsKeyDown(Keys.W))
+            if (_activated)
             {
-                _position.Y -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
-            }
-            if (kbState.IsKeyDown(Keys.S))
-            {
-                _position.Y += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
-            }
-            if (kbState.IsKeyDown(Keys.A))
-            {
-                _position.X -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
-            }
-            if (kbState.IsKeyDown(Keys.D))
-            {
-                _position.X += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                KeyboardState kbState = Keyboard.GetState();
+                if (kbState.IsKeyDown(Keys.W))
+                {
+                    _position.Y -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                }
+                if (kbState.IsKeyDown(Keys.S))
+                {
+                    _position.Y += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                }
+                if (kbState.IsKeyDown(Keys.A))
+                {
+                    _position.X -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                }
+                if (kbState.IsKeyDown(Keys.D))
+                {
+                    _position.X += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                }
             }
 
         }
@@ -47,6 +51,7 @@ namespace Bomberman
             spriteBatch.Draw(_texture, _position, _sourceRect, Color.White);
         }
 
-        public float GetCharacterPoxX() { return _position.X; }
+        public Vector2 GetCharacterPosition() { return _position; }
+        public void SetCharacterPosition(float x, float y) { _position.X = x; _position.Y = y; }
     }
 }

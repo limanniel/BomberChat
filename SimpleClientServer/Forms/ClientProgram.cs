@@ -145,7 +145,10 @@ namespace SimpleServer
             {
                 while((packet = ReadPacketUDP(ref _remoteIpEndPoint)) != null)
                 {
-                    Console.WriteLine(_messageForm.GetCharacterPosX());
+                    float x = _messageForm.GetCharacterPosition(1).X;
+                    float y = _messageForm.GetCharacterPosition(1).Y;
+                    _messageForm.SetCharacterPosition(x + 2, y + 2, 1);
+
                     // Process received udp packet
                     switch (packet.getPacketType())
                     {
