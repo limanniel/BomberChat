@@ -1,0 +1,3 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"F:/University/CNA/Bomberman/Content/Textures/Bman_F_f00.png","F:/University/CNA/Bomberman/Content/bin/Windows/Content/Textures/Bman_F_f00.xnb","TextureProcessor","Texture2DContent",35685,32853,0.1340297
+"F:/University/CNA/Bomberman/Content/Textures/Bomb_f01.png","F:/University/CNA/Bomberman/Content/bin/Windows/Content/Textures/Bomb_f01.xnb","TextureProcessor","Texture2DContent",2335,9301,0.1370416
