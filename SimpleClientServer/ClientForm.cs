@@ -71,5 +71,20 @@ namespace SimpleServer
             chatSendBox.Clear();
             chatSendBox.Focus();
         }
+
+        private void NicknamesList_MouseDown(object sender, MouseEventArgs e)
+        {
+            try
+            {
+                if (client._nickname == NicknamesList.SelectedItem.ToString() && e.Clicks == 2)
+                {
+                    client._nicknameForm.ShowDialog();
+                    client.SendPacketTCP(new Packets.NicknamePacket(client._nickname));
+                }
+            }
+            catch (NullReferenceException)
+            {
+            }
+        }
     }
 }

@@ -69,7 +69,8 @@ namespace SimpleServer
         }; // Contains stages of hangman drawing
         string[] _wordsDictionary = new string[] 
         {
-            "exodus", "banjo", "crypt", "jukebox"
+            "exodus", "banjo", "crypt", "jukebox", "beekeeper", "matrix", "buffalo", "stronghold",
+            "rhubarb", "galaxy", "zombie", "portal", "wyvern", "dragon", "dungeon", "bookworm"
         };
 
         public Hangman()
@@ -77,8 +78,7 @@ namespace SimpleServer
             _countOfTries = 0;
             // Pick random word from word dictionary
             Random rand = new Random();
-            //_word = _wordsDictionary[rand.Next(0, _wordsDictionary.Length)];
-            _word = "seex";
+            _word = _wordsDictionary[rand.Next(0, _wordsDictionary.Length)];
             // Init internal obscured word
             _internalObscuredWord = new StringBuilder();
             _internalObscuredWord.Insert(0, "_", _word.Length);
@@ -101,8 +101,8 @@ namespace SimpleServer
             else if (_word.Contains(clientMessage))
             {
                 char[] charMessage = clientMessage.ToCharArray();
-                int index = _word.IndexOf(clientMessage);
-                //_internalObscuredWord[index] = charMessage[0];
+                
+                // Loop through the word and replace all occurances of letter sent in internalObscureWord
                 for (int i = 0; i < _word.Length; i++)
                 {
                     if (_word[i] == charMessage[0])

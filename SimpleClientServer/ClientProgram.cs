@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using Packets;
+using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
 using System.Net;
@@ -30,9 +31,9 @@ namespace SimpleServer
 
     public class SimpleClient
     {
-        string _nickname = "";
+        public string _nickname { get; private set; }
+        public SetNicknameForm _nicknameForm { get; private set; }
         ClientForm _messageForm;
-        SetNicknameForm _nicknameForm;
         List<string> _nicknamesList;
 
         // TCP
@@ -48,6 +49,7 @@ namespace SimpleServer
 
         public SimpleClient()
         {
+            _nicknamesList = new List<string>();
             _messageForm = new ClientForm(this);
             _nicknameForm = new SetNicknameForm(this);
         }
@@ -61,10 +63,9 @@ namespace SimpleServer
             // Display Set Nickname window
             _nicknameForm.Owner = _messageForm;
             _nicknameForm.StartPosition = FormStartPosition.CenterParent;
-            do
-            {
-                _nicknameForm.ShowDialog();
-            } while (_nickname == "");
+
+            // Set Nickname Dialog
+            _nicknameForm.ShowDialog();
 
             // Try to connect to a server with tcp and then establish handshake to udp
             try
@@ -144,9 +145,13 @@ namespace SimpleServer
                     switch (packet.getPacketType())
                     {
                         case PacketType.NICKNAMESLIST:
-                            _nicknamesList = (packet as NicknamesList)._nicknamesList;
-                            Console.WriteLine("test");
-                            _messageForm.UpdateNicknamesList(ref _nicknamesList);
+                            // Update local nicklist only if it's different from server one
+                            NicknamesList nicknameListPacket = packet as NicknamesList;
+                            if (!_nicknamesList.SequenceEqual(nicknameListPacket._nicknamesList))
+                            {
+                                _nicknamesList = nicknameListPacket._nicknamesList;
+                                _messageForm.UpdateNicknamesList(ref _nicknamesList);
+                            }
                             break;
 
                         default:

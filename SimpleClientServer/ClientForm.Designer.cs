@@ -71,6 +71,7 @@
             this.NicknamesList.Name = "NicknamesList";
             this.NicknamesList.Size = new System.Drawing.Size(210, 324);
             this.NicknamesList.TabIndex = 3;
+            this.NicknamesList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.NicknamesList_MouseDown);
             // 
             // label1
             // 

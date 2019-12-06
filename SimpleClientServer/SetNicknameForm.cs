@@ -15,9 +15,12 @@ namespace SimpleServer
 
         private void NicknameSubmitButton_Click(object sender, EventArgs e)
         {
-            _client.SetNickname(NicknameTextBox.Text);
-            NicknameTextBox.Clear();
-            Close();
+            if (NicknameTextBox.Text != "" && !NicknameTextBox.Text.StartsWith(" "))
+            {
+                _client.SetNickname(NicknameTextBox.Text);
+                NicknameTextBox.Clear();
+                Close();
+            }
         }
     }
 }
