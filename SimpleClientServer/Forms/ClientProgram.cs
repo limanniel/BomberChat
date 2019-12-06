@@ -36,7 +36,7 @@ namespace SimpleServer
         public SetNicknameForm _nicknameForm { get; private set; }
         ClientForm _messageForm;
         List<string> _nicknamesList;
-        BombermanMonoForm _bombermanForm;
+        //BombermanMonoForm _bombermanForm;
 
         // TCP
         TcpClient _tcpClient;
@@ -54,8 +54,8 @@ namespace SimpleServer
             _nicknamesList = new List<string>();
             _messageForm = new ClientForm(this);
             _nicknameForm = new SetNicknameForm(this);
-            _bombermanForm = new BombermanMonoForm();
-            Application.Run(_bombermanForm);
+            //_bombermanForm = new BombermanMonoForm();
+            //Application.Run(_bombermanForm);
         }
 
         public bool Connect(string ipAddress, int port)
@@ -145,6 +145,7 @@ namespace SimpleServer
             {
                 while((packet = ReadPacketUDP(ref _remoteIpEndPoint)) != null)
                 {
+                    Console.WriteLine(_messageForm.GetCharacterPosX());
                     // Process received udp packet
                     switch (packet.getPacketType())
                     {

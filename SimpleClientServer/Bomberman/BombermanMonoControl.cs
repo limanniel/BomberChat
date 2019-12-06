@@ -28,5 +28,7 @@ namespace Bomberman
             _Character.Draw(Editor.spriteBatch);
             Editor.spriteBatch.End();
         }
+
+        public float GetCharacterPosX() { return _Character.GetCharacterPoxX(); }
     }
 }

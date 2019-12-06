@@ -33,6 +33,7 @@
             this.sendMessageButton = new System.Windows.Forms.Button();
             this.NicknamesList = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.bombermanMonoControl1 = new Bomberman.BombermanMonoControl();
             this.SuspendLayout();
             // 
             // messageDisplayBox
@@ -83,12 +84,22 @@
             this.label1.TabIndex = 4;
             this.label1.Text = "Active Users";
             // 
+            // bombermanMonoControl1
+            // 
+            this.bombermanMonoControl1.Location = new System.Drawing.Point(805, 12);
+            this.bombermanMonoControl1.MouseHoverUpdatesOnly = false;
+            this.bombermanMonoControl1.Name = "bombermanMonoControl1";
+            this.bombermanMonoControl1.Size = new System.Drawing.Size(932, 719);
+            this.bombermanMonoControl1.TabIndex = 5;
+            this.bombermanMonoControl1.Text = "bombermanMonoControl1";
+            // 
             // ClientForm
             // 
             this.AcceptButton = this.sendMessageButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 450);
+            this.ClientSize = new System.Drawing.Size(1749, 743);
+            this.Controls.Add(this.bombermanMonoControl1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.NicknamesList);
             this.Controls.Add(this.sendMessageButton);
@@ -110,5 +121,6 @@
         private System.Windows.Forms.Button sendMessageButton;
         private System.Windows.Forms.ListBox NicknamesList;
         private System.Windows.Forms.Label label1;
+        private Bomberman.BombermanMonoControl bombermanMonoControl1;
     }
 }

@@ -86,5 +86,10 @@ namespace SimpleServer
             {
             }
         }
+
+        public float GetCharacterPosX()
+        {
+            return bombermanMonoControl1.GetCharacterPosX();
+        }
     }
 }

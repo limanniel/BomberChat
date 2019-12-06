@@ -42,10 +42,11 @@ namespace Bomberman
             }
 
         }
-
         public void Draw(SpriteBatch spriteBatch)
         {
             spriteBatch.Draw(_texture, _position, _sourceRect, Color.White);
         }
+
+        public float GetCharacterPoxX() { return _position.X; }
     }
 }
