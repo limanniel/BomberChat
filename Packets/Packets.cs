@@ -10,7 +10,8 @@ namespace Packets
         NICKNAME,
         CHATMESSAGE,
         LOGIN,
-        NICKNAMESLIST
+        NICKNAMESLIST,
+        CHARACTERPOSITION
     }
 
     [Serializable]
@@ -62,6 +63,18 @@ namespace Packets
         {
             _type = PacketType.NICKNAMESLIST;
             _nicknamesList = list;
+        }
+    }
+
+    [Serializable]
+    public class CharacterPositionPacket : Packet
+    {
+        public float _x, _y;
+        public CharacterPositionPacket(float x, float y)
+        {
+            _type = PacketType.CHARACTERPOSITION;
+            _x = x;
+            _y = y;
         }
     }
 }

@@ -10,6 +10,7 @@ using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
 using System.Net;
 using Bomberman;
+using Microsoft.Xna.Framework;
 
 namespace SimpleServer
 {
@@ -32,11 +33,11 @@ namespace SimpleServer
 
     public class SimpleClient
     {
-        public string _nickname { get; private set; }
-        public SetNicknameForm _nicknameForm { get; private set; }
+        Vector2 _localCharacterPosition;
         ClientForm _messageForm;
         List<string> _nicknamesList;
-        //BombermanMonoForm _bombermanForm;
+        public string _nickname { get; private set; }
+        public SetNicknameForm _nicknameForm { get; private set; }
 
         // TCP
         TcpClient _tcpClient;
@@ -159,6 +160,12 @@ namespace SimpleServer
                             }
                             break;
 
+                        case PacketType.CHARACTERPOSITION:
+                            CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
+                            Console.WriteLine("Character position packet!: " + characterPositionPacket._x + " " + characterPositionPacket._y);
+                            _messageForm.UpdateCharacterPosition(characterPositionPacket._x, characterPositionPacket._y);
+                            break;
+
                         default:
                             break;
                     }
@@ -169,7 +176,14 @@ namespace SimpleServer
 
         void ProcessServerResponseWriteUDP()
         {
-
+            while (_udpClient.Client.Connected)
+            {
+                // Keep Sending Character Position
+                if (_messageForm.bombermanMonoControl1._character._isMoving)
+                {
+                    SendPacketUDP(new CharacterPositionPacket(_messageForm.bombermanMonoControl1._character._position.X, _messageForm.bombermanMonoControl1._character._position.Y));
+                }
+            }
         }
 
         public void SendMessage(string message)

@@ -121,6 +121,6 @@
         private System.Windows.Forms.Button sendMessageButton;
         private System.Windows.Forms.ListBox NicknamesList;
         private System.Windows.Forms.Label label1;
-        private Bomberman.BombermanMonoControl bombermanMonoControl1;
+        public Bomberman.BombermanMonoControl bombermanMonoControl1;
     }
 }

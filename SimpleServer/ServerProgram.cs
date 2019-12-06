@@ -199,14 +199,35 @@ namespace SimpleServer
             while (true)
             {
                 client.UDPSend(new NicknamesList(_clientsNicknames));
-                Thread.Sleep(100);
+                client.UDPSend(new CharacterPositionPacket(client._characterPosX, client._characterPosY));
+                Thread.Sleep(10);
             }
 
         }
 
         private void UDPClientReadMethod(object clientObj)
         {
-            //Client client = (Client)clientObj;
+            Client client = (Client)clientObj;
+            Packet packet;
+            while (true)
+            {
+                packet = client.UDPRead(client);
+                switch (packet.getPacketType())
+                {
+                    case PacketType.CHARACTERPOSITION:
+                        CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
+                        _clients.ForEach(cl => 
+                        {
+                            if (cl._characterPosX != characterPositionPacket._x || cl._characterPosY != characterPositionPacket._y)
+                            {
+                                Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
+                                cl._characterPosX = characterPositionPacket._x;
+                                cl._characterPosY = characterPositionPacket._y;
+                            }
+                        });
+                        break;
+                }
+            }
         }
 
         void UpdateClientsNicknameList()
@@ -226,6 +247,8 @@ namespace SimpleServer
         public Socket _udpSocket;
 
         public string _nickname { get; set; }
+        public float _characterPosX {get; set;}
+        public float _characterPosY { get; set; }
         public BinaryReader Reader { get; private set; }
         public BinaryWriter Writer { get; private set; }
 
