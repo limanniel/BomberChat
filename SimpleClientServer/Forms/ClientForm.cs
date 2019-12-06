@@ -86,8 +86,5 @@ namespace SimpleServer
             {
             }
         }
-
-        public Microsoft.Xna.Framework.Vector2 GetCharacterPosition(int index) { return bombermanMonoControl1.GetCharacterPosition(index); }
-        public void SetCharacterPosition(float x, float y, int index) { bombermanMonoControl1.SetCharacterPosition(x, y, index); }
     }
 }

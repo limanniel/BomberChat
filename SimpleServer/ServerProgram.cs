@@ -186,29 +186,27 @@ namespace SimpleServer
         {
             client.UDPConnect(loginpacket._endPoint);
             client.SendPacketTCP(new LoginPacket(client._udpSocket.LocalEndPoint), client);
-            Thread u = new Thread(new ParameterizedThreadStart(UDPClientMethod));
-            u.Start(client);
+            Thread w = new Thread(new ParameterizedThreadStart(UDPClientWriteMethod));
+            Thread r = new Thread(new ParameterizedThreadStart(UDPClientReadMethod));
+            w.Start(client);
+            r.Start(client);
         }
 
-        private void UDPClientMethod(object clientObj)
+        private void UDPClientWriteMethod(object clientObj)
         {
             Client client = (Client)clientObj;
-            Packet packet;
 
             while (true)
             {
                 client.UDPSend(new NicknamesList(_clientsNicknames));
-
-                //packet = client.UDPRead(client);
-                //switch (packet.getPacketType())
-                //{
-                //    default:
-                //        break;
-                //}
-
                 Thread.Sleep(100);
             }
 
+        }
+
+        private void UDPClientReadMethod(object clientObj)
+        {
+            //Client client = (Client)clientObj;
         }
 
         void UpdateClientsNicknameList()

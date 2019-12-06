@@ -47,6 +47,7 @@ namespace SimpleServer
         // UDP
         UdpClient _udpClient;
         Thread _udpReaderThread;
+        Thread _udpWriterThread;
         IPEndPoint _remoteIpEndPoint;
 
         public SimpleClient()
@@ -54,15 +55,13 @@ namespace SimpleServer
             _nicknamesList = new List<string>();
             _messageForm = new ClientForm(this);
             _nicknameForm = new SetNicknameForm(this);
-            //_bombermanForm = new BombermanMonoForm();
-            //Application.Run(_bombermanForm);
         }
 
         public bool Connect(string ipAddress, int port)
         {
             _tcpClient = new TcpClient();
             _udpClient = new UdpClient();
-            _tcpReaderThread = new Thread(new ThreadStart(ProcessServerResponse));
+            _tcpReaderThread = new Thread(new ThreadStart(ProcessServerResponseTCP));
 
             // Display Set Nickname window
             _nicknameForm.Owner = _messageForm;
@@ -108,7 +107,7 @@ namespace SimpleServer
             SendPacketTCP(new NicknamePacket(_nickname));
         }
 
-        void ProcessServerResponse()
+        void ProcessServerResponseTCP()
         {
             Packet packet;
 
@@ -127,8 +126,10 @@ namespace SimpleServer
                     case PacketType.LOGIN:
                         LoginPacket lgnPacket = (LoginPacket)packet;
                         _udpClient.Connect((IPEndPoint)lgnPacket._endPoint);
-                        _udpReaderThread = new Thread(new ThreadStart(ProcessServerResponseUDP));
+                        _udpReaderThread = new Thread(new ThreadStart(ProcessServerResponseReadUDP));
                         _udpReaderThread.Start();
+                        _udpWriterThread = new Thread(new ThreadStart(ProcessServerResponseWriteUDP));
+                        _udpWriterThread.Start();
                         Console.WriteLine("UDP CONNECTED!");
                         break;
 
@@ -138,17 +139,13 @@ namespace SimpleServer
             }
         }
 
-        void ProcessServerResponseUDP()
+        void ProcessServerResponseReadUDP()
         {
             Packet packet;
             if (_udpClient.Client.Connected)
             {
                 while((packet = ReadPacketUDP(ref _remoteIpEndPoint)) != null)
                 {
-                    float x = _messageForm.GetCharacterPosition(1).X;
-                    float y = _messageForm.GetCharacterPosition(1).Y;
-                    _messageForm.SetCharacterPosition(x + 2, y + 2, 1);
-
                     // Process received udp packet
                     switch (packet.getPacketType())
                     {
@@ -168,6 +165,11 @@ namespace SimpleServer
                 }
 
             }
+        }
+
+        void ProcessServerResponseWriteUDP()
+        {
+
         }
 
         public void SendMessage(string message)
