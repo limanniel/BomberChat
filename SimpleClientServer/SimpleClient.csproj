@@ -67,6 +67,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bomberman\AnimatedSprite.cs" />
     <Compile Include="Bomberman\BombermanMonoControl.cs">
       <SubType>Component</SubType>
     </Compile>

@@ -1,3 +1,5 @@
 Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
 "F:/University/CNA/SimpleClientServer/Content/Textures/Bman_F_f00.png","F:/University/CNA/SimpleClientServer/Content/bin/Windows/Content/Textures/Bman_F_f00.xnb","TextureProcessor","Texture2DContent",35685,32853,0.1368897
 "F:/University/CNA/SimpleClientServer/Content/Textures/Bomb_f01.png","F:/University/CNA/SimpleClientServer/Content/bin/Windows/Content/Textures/Bomb_f01.xnb","TextureProcessor","Texture2DContent",2335,9301,0.0120025
+"F:/University/CNA/SimpleClientServer/Content/Textures/bomberman_f_spritesheet.png","F:/University/CNA/SimpleClientServer/Content/bin/Windows/Content/Textures/bomberman_f_spritesheet.xnb","TextureProcessor","Texture2DContent",9518,149845,0.4000909
+"F:/University/CNA/SimpleClientServer/Content/Textures/bomberman_spritesheet.png","F:/University/CNA/SimpleClientServer/Content/bin/Windows/Content/Textures/bomberman_spritesheet.xnb","TextureProcessor","Texture2DContent",93533,599125,0.1480476

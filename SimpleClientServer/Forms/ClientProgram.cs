@@ -163,7 +163,7 @@ namespace SimpleServer
                         case PacketType.CHARACTERPOSITION:
                             CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
                             Console.WriteLine("Character position packet!: " + characterPositionPacket._x + " " + characterPositionPacket._y);
-                            _messageForm.UpdateCharacterPosition(characterPositionPacket._x, characterPositionPacket._y);
+                            _messageForm.UpdateCharacterPosition(characterPositionPacket._x, characterPositionPacket._y, characterPositionPacket._direction);
                             break;
 
                         default:
@@ -181,7 +181,7 @@ namespace SimpleServer
                 // Keep Sending Character Position
                 if (_messageForm.bombermanMonoControl1._character._isMoving)
                 {
-                    SendPacketUDP(new CharacterPositionPacket(_messageForm.bombermanMonoControl1._character._position.X, _messageForm.bombermanMonoControl1._character._position.Y));
+                    SendPacketUDP(new CharacterPositionPacket(_messageForm.bombermanMonoControl1._character._position.X, _messageForm.bombermanMonoControl1._character._position.Y, _messageForm.bombermanMonoControl1._character._direction));
                 }
             }
         }

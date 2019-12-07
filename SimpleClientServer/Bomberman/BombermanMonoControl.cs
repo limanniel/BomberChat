@@ -24,9 +24,9 @@ namespace Bomberman
         protected override void Draw()
         {
             base.Draw();
-            Editor.spriteBatch.Begin();
+            //Editor.spriteBatch.Begin();
             _character.Draw(Editor.spriteBatch);
-            Editor.spriteBatch.End();
+           // Editor.spriteBatch.End();
         }
     }
 }

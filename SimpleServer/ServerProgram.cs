@@ -199,7 +199,7 @@ namespace SimpleServer
             while (true)
             {
                 client.UDPSend(new NicknamesList(_clientsNicknames));
-                client.UDPSend(new CharacterPositionPacket(client._characterPosX, client._characterPosY));
+                client.UDPSend(new CharacterPositionPacket(client._characterPosX, client._characterPosY, client._characterDirection));
                 Thread.Sleep(10);
             }
 
@@ -223,6 +223,7 @@ namespace SimpleServer
                                 Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
                                 cl._characterPosX = characterPositionPacket._x;
                                 cl._characterPosY = characterPositionPacket._y;
+                                cl._characterDirection = characterPositionPacket._direction;
                             }
                         });
                         break;
@@ -249,6 +250,7 @@ namespace SimpleServer
         public string _nickname { get; set; }
         public float _characterPosX {get; set;}
         public float _characterPosY { get; set; }
+        public int _characterDirection { get; set; }
         public BinaryReader Reader { get; private set; }
         public BinaryWriter Writer { get; private set; }
 

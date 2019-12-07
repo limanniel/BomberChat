@@ -70,11 +70,13 @@ namespace Packets
     public class CharacterPositionPacket : Packet
     {
         public float _x, _y;
-        public CharacterPositionPacket(float x, float y)
+        public int _direction;
+        public CharacterPositionPacket(float x, float y, int direction)
         {
             _type = PacketType.CHARACTERPOSITION;
             _x = x;
             _y = y;
+            _direction = direction;
         }
     }
 }

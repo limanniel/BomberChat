@@ -87,12 +87,13 @@ namespace SimpleServer
             }
         }
 
-        public void UpdateCharacterPosition(float x, float y)
+        public void UpdateCharacterPosition(float x, float y, int direction)
         {
             if (bombermanMonoControl1._character._position.X != x || bombermanMonoControl1._character._position.Y != y)
             {
                 bombermanMonoControl1._character._position.X = x;
                 bombermanMonoControl1._character._position.Y = y;
+                bombermanMonoControl1._character._animatedSprite.Update(bombermanMonoControl1.Editor.GameTime, direction);
             }
         }
     }
