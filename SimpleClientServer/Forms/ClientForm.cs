@@ -87,14 +87,27 @@ namespace SimpleServer
             }
         }
 
-        public void UpdateCharacterPosition(float x, float y, int direction)
+        public void UpdateCharacterPosition(int id, float x, float y, int direction)
         {
-            if (bombermanMonoControl1._character._position.X != x || bombermanMonoControl1._character._position.Y != y)
+            //if (bombermanMonoControl1._characterList[0]._position.X != x || bombermanMonoControl1._characterList[0]._position.Y != y)
+            //{
+            if (client._playerId != id)
             {
-                bombermanMonoControl1._character._position.X = x;
-                bombermanMonoControl1._character._position.Y = y;
-                bombermanMonoControl1._character._animatedSprite.Update(bombermanMonoControl1.Editor.GameTime, direction);
+                if (bombermanMonoControl1._characterList[id]._position.X != x || bombermanMonoControl1._characterList[id]._position.Y != y)
+                {
+                    bombermanMonoControl1._characterList[id]._position.X = x;
+                    bombermanMonoControl1._characterList[id]._position.Y = y;
+                    bombermanMonoControl1._characterList[id].UpdateAnimation(bombermanMonoControl1.Editor.GameTime, direction);
+                    Console.WriteLine("Moving Pawn");
+
+                }
             }
+            //}
+        }
+
+        public void AssignCharacter(int id)
+        {
+            bombermanMonoControl1._characterList[id]._possessed = true;
         }
     }
 }

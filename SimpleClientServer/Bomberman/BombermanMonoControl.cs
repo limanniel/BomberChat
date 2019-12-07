@@ -9,23 +9,31 @@ namespace Bomberman
 {
     public class BombermanMonoControl : MonoGame.Forms.Controls.MonoGameControl
     {
-        public Bomberman_Character _character;
+        public List<Bomberman_Character> _characterList;
 
         protected override void Initialize()
         {
             base.Initialize();
-            _character = new Bomberman_Character(Editor.Content);
+            _characterList = new List<Bomberman_Character>();
+            _characterList.Add(new Bomberman_Character(Editor.Content, Color.White));
+            _characterList.Add(new Bomberman_Character(Editor.Content, Color.BlueViolet));
         }
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            _character.Update(gameTime);
+            _characterList.ForEach(cl =>
+            {
+                cl.Update(gameTime);
+            });
         }
         protected override void Draw()
         {
             base.Draw();
             //Editor.spriteBatch.Begin();
-            _character.Draw(Editor.spriteBatch);
+            _characterList.ForEach(cl =>
+            {
+                cl.Draw(Editor.spriteBatch);
+            });
            // Editor.spriteBatch.End();
         }
     }

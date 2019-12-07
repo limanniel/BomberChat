@@ -16,12 +16,14 @@ namespace Bomberman
         private int _currentFrame;
         private int _activeColumn;
         private float _time;
+        private Color _color;
 
-        public AnimatedSprite(Texture2D texture, int rows, int columns)
+        public AnimatedSprite(Texture2D texture, int rows, int columns, Color color)
         {
             _texture = texture;
             _rows = rows;
             _columns = columns;
+            _color = color;
             _currentFrame = 0;
             _activeColumn = 0;
             _time = 0;
@@ -29,14 +31,17 @@ namespace Bomberman
 
         public void Update(GameTime gameTime, int column = 0)
         {
-            _activeColumn = column;
-            _time += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
-            if (_time > 50.0f)
+            if (gameTime != null)
             {
-                _time = 0;
-                _currentFrame++;
-                if (_currentFrame == _rows)
-                    _currentFrame = 0;
+                _activeColumn = column;
+                _time += (float)gameTime.ElapsedGameTime.TotalMilliseconds;
+                if (_time > 50.0f)
+                {
+                    _time = 0;
+                    _currentFrame++;
+                    if (_currentFrame == _rows)
+                        _currentFrame = 0;
+                }
             }
         }
 
@@ -49,7 +54,7 @@ namespace Bomberman
             Rectangle destinationRectangle = new Rectangle((int)position.X, (int)position.Y, width, height);
 
             spriteBatch.Begin();
-            spriteBatch.Draw(_texture, destinationRectangle, sourceRectangle, Color.White);
+            spriteBatch.Draw(_texture, destinationRectangle, sourceRectangle, _color);
             spriteBatch.End();
         }
     }

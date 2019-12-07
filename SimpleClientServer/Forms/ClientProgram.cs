@@ -33,11 +33,11 @@ namespace SimpleServer
 
     public class SimpleClient
     {
-        Vector2 _localCharacterPosition;
         ClientForm _messageForm;
         List<string> _nicknamesList;
         public string _nickname { get; private set; }
         public SetNicknameForm _nicknameForm { get; private set; }
+        public int _playerId;
 
         // TCP
         TcpClient _tcpClient;
@@ -56,6 +56,7 @@ namespace SimpleServer
             _nicknamesList = new List<string>();
             _messageForm = new ClientForm(this);
             _nicknameForm = new SetNicknameForm(this);
+            _playerId = 0;
         }
 
         public bool Connect(string ipAddress, int port)
@@ -134,6 +135,12 @@ namespace SimpleServer
                         Console.WriteLine("UDP CONNECTED!");
                         break;
 
+                    case PacketType.ASSIGNCHARACTER:
+                        AssignCharacterPacket acPacket = (AssignCharacterPacket)packet;
+                        _playerId = acPacket._id;
+                        _messageForm.AssignCharacter(acPacket._id);
+                        break;
+
                     default:
                         break;
                 }
@@ -162,8 +169,8 @@ namespace SimpleServer
 
                         case PacketType.CHARACTERPOSITION:
                             CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
-                            Console.WriteLine("Character position packet!: " + characterPositionPacket._x + " " + characterPositionPacket._y);
-                            _messageForm.UpdateCharacterPosition(characterPositionPacket._x, characterPositionPacket._y, characterPositionPacket._direction);
+                            //Console.WriteLine("Character position packet!: " + characterPositionPacket._x + " " + characterPositionPacket._y);
+                            _messageForm.UpdateCharacterPosition(characterPositionPacket._id, characterPositionPacket._x, characterPositionPacket._y, characterPositionPacket._direction);
                             break;
 
                         default:
@@ -179,9 +186,9 @@ namespace SimpleServer
             while (_udpClient.Client.Connected)
             {
                 // Keep Sending Character Position
-                if (_messageForm.bombermanMonoControl1._character._isMoving)
+                if (_messageForm.bombermanMonoControl1._characterList[_playerId]._isMoving)
                 {
-                    SendPacketUDP(new CharacterPositionPacket(_messageForm.bombermanMonoControl1._character._position.X, _messageForm.bombermanMonoControl1._character._position.Y, _messageForm.bombermanMonoControl1._character._direction));
+                    SendPacketUDP(new CharacterPositionPacket(_playerId ,_messageForm.bombermanMonoControl1._characterList[_playerId]._position.X, _messageForm.bombermanMonoControl1._characterList[_playerId]._position.Y, _messageForm.bombermanMonoControl1._characterList[_playerId]._direction));
                 }
             }
         }

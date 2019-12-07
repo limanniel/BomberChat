@@ -11,6 +11,20 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SimpleServer
 {
+    class CharacterPosition
+    {
+        public float _x { get; set; }
+        public float _y { get; set; }
+        public int _direction { get; set; }
+
+        public CharacterPosition()
+        {
+            _x = 0.0f;
+            _y = 0.0f;
+            _direction = 0;
+        }
+    }
+
     class ServerProgram
     {
         static void Main(string[] args)
@@ -30,12 +44,16 @@ namespace SimpleServer
         List<string> _clientsNicknames;
         Hangman _hangmanGame;
         bool _isHangmanActive;
+        int _count;
+        List<CharacterPosition> _characterPositions;
 
         public Server(string ipAddress, int port)
         {
             _clients = new List<Client>();
             _clientsNicknames = new List<string>();
             _iPAddress = IPAddress.Parse(ipAddress);
+            _characterPositions = new List<CharacterPosition>();
+            _count = 0;
 
             try
             {
@@ -165,6 +183,10 @@ namespace SimpleServer
                     // UDP packet detected
                     case PacketType.LOGIN:
                         HandleLoginPacket(client, (LoginPacket)packet);
+                            client.SendPacketTCP(new AssignCharacterPacket(_count), client);
+                            _characterPositions.Add(new CharacterPosition());
+                            client._id = _count;
+                            _count++;
                         break;
 
                     default:
@@ -199,7 +221,11 @@ namespace SimpleServer
             while (true)
             {
                 client.UDPSend(new NicknamesList(_clientsNicknames));
-                client.UDPSend(new CharacterPositionPacket(client._characterPosX, client._characterPosY, client._characterDirection));
+                for (var i = 0; i < _characterPositions.Count; i++)
+                {
+                    client.UDPSend(new CharacterPositionPacket(i, _characterPositions[i]._x, _characterPositions[i]._y, _characterPositions[i]._direction));
+                }
+                
                 Thread.Sleep(10);
             }
 
@@ -218,13 +244,14 @@ namespace SimpleServer
                         CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
                         _clients.ForEach(cl => 
                         {
-                            if (cl._characterPosX != characterPositionPacket._x || cl._characterPosY != characterPositionPacket._y)
+                            if (_characterPositions[characterPositionPacket._id]._x != characterPositionPacket._x || _characterPositions[characterPositionPacket._id]._y != characterPositionPacket._y)
                             {
                                 Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
-                                cl._characterPosX = characterPositionPacket._x;
-                                cl._characterPosY = characterPositionPacket._y;
-                                cl._characterDirection = characterPositionPacket._direction;
+                                _characterPositions[characterPositionPacket._id]._x = characterPositionPacket._x;
+                                _characterPositions[characterPositionPacket._id]._y = characterPositionPacket._y;
+                                _characterPositions[characterPositionPacket._id]._direction = characterPositionPacket._direction;
                             }
+
                         });
                         break;
                 }
@@ -248,9 +275,7 @@ namespace SimpleServer
         public Socket _udpSocket;
 
         public string _nickname { get; set; }
-        public float _characterPosX {get; set;}
-        public float _characterPosY { get; set; }
-        public int _characterDirection { get; set; }
+        public int _id { get; set; }
         public BinaryReader Reader { get; private set; }
         public BinaryWriter Writer { get; private set; }
 

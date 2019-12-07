@@ -11,7 +11,8 @@ namespace Packets
         CHATMESSAGE,
         LOGIN,
         NICKNAMESLIST,
-        CHARACTERPOSITION
+        CHARACTERPOSITION,
+        ASSIGNCHARACTER
     }
 
     [Serializable]
@@ -69,14 +70,27 @@ namespace Packets
     [Serializable]
     public class CharacterPositionPacket : Packet
     {
+        public int _id;
         public float _x, _y;
         public int _direction;
-        public CharacterPositionPacket(float x, float y, int direction)
+        public CharacterPositionPacket(int id, float x, float y, int direction)
         {
             _type = PacketType.CHARACTERPOSITION;
+            _id = id;
             _x = x;
             _y = y;
             _direction = direction;
+        }
+    }
+
+    [Serializable]
+    public class AssignCharacterPacket : Packet
+    {
+        public int _id;
+        public AssignCharacterPacket(int id)
+        {
+            _type = PacketType.ASSIGNCHARACTER;
+            _id = id;
         }
     }
 }

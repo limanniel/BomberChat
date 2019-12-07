@@ -10,47 +10,50 @@ namespace Bomberman
     {
         public AnimatedSprite _animatedSprite;
         Texture2D _texture;
-        Rectangle _sourceRect;
         public Vector2 _position;
         const float _CHARACTER_SPEED = 0.25f;
         public bool _isMoving { get; private set; }
+        public bool _possessed { get; set; }
         public int _direction { get; private set; }
 
-        public Bomberman_Character(ContentManager contentManager)
+        public Bomberman_Character(ContentManager contentManager, Color color)
         {
             _texture = contentManager.Load<Texture2D>("Textures/bomberman_spritesheet");
-            _animatedSprite = new AnimatedSprite(_texture, 8, 4);
+            _animatedSprite = new AnimatedSprite(_texture, 8, 4, color);
             _position = new Vector2(0.0f, 0.0f);
-            _sourceRect = new Rectangle(0, 0, 64, 128);
+            _possessed = false;
         }
 
         public void Update(GameTime gameTime)
         {
             KeyboardState kbState = Keyboard.GetState();
-            if (kbState.IsKeyDown(Keys.W))
+            if (_possessed)
             {
-                _position.Y -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
-                _animatedSprite.Update(gameTime, 1);
-                _direction = 1;
-            }
-            if (kbState.IsKeyDown(Keys.S))
-            {
-                _position.Y += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
-                _animatedSprite.Update(gameTime, 0);
-                _direction = 0;
-            }
-            if (kbState.IsKeyDown(Keys.A))
-            {
-                _position.X -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
-                _animatedSprite.Update(gameTime, 3);
-                _direction = 3;
-            }
-            if (kbState.IsKeyDown(Keys.D))
-            {
-                _position.X += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
-                _animatedSprite.Update(gameTime, 2);
-                _direction = 2;
-            }
+                if (kbState.IsKeyDown(Keys.W))
+                {
+                    _position.Y -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                    _animatedSprite.Update(gameTime, 1);
+                    _direction = 1;
+                }
+                if (kbState.IsKeyDown(Keys.S))
+                {
+                    _position.Y += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                    _animatedSprite.Update(gameTime, 0);
+                    _direction = 0;
+                }
+                if (kbState.IsKeyDown(Keys.A))
+                {
+                    _position.X -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                    _animatedSprite.Update(gameTime, 3);
+                    _direction = 3;
+                }
+                if (kbState.IsKeyDown(Keys.D))
+                {
+                    _position.X += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
+                    _animatedSprite.Update(gameTime, 2);
+                    _direction = 2;
+                }
+            } 
 
             if (kbState.GetPressedKeys().Length == 0)
             {
@@ -65,6 +68,11 @@ namespace Bomberman
         {
             //spriteBatch.Draw(_texture, _position, _sourceRect, Color.White);
             _animatedSprite.Draw(spriteBatch, _position);
+        }
+
+        public void UpdateAnimation(GameTime gametime, int direction)
+        {
+            _animatedSprite.Update(gametime, direction);
         }
     }
 }
