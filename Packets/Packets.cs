@@ -14,6 +14,7 @@ namespace Packets
         CHARACTERPOSITION,
         ASSIGNCHARACTER,
         CREATECHARACTER,
+        SPAWNBOMB
     }
 
     [Serializable]
@@ -59,11 +60,11 @@ namespace Packets
     }
 
     [Serializable]
-    public class NicknamesList : Packet
+    public class NicknamesListPacket : Packet
     {
         public List<string> _nicknamesList;
 
-        public NicknamesList(List<string> list)
+        public NicknamesListPacket(List<string> list)
         {
             _type = PacketType.NICKNAMESLIST;
             _nicknamesList = list;
@@ -96,17 +97,31 @@ namespace Packets
     }
 
     [Serializable]
-    public class CreateCharacter : Packet
+    public class CreateCharacterPacket : Packet
     {
         public int _id;
         public int _ColourR, _ColourG, _ColourB;
-        public CreateCharacter(int id, int r, int g, int b)
+        public CreateCharacterPacket(int id, int r, int g, int b)
         {
             _type = PacketType.CREATECHARACTER;
             _id = id;
             _ColourR = r;
             _ColourG = g;
             _ColourB = b;
+        }
+    }
+
+    [Serializable]
+    public class SpawnBombPacket : Packet
+    {
+        public int _id;
+        public float _posX, _posY;
+        public SpawnBombPacket(float posX, float posY, int id)
+        {
+            _type = PacketType.SPAWNBOMB;
+            _id = id;
+            _posX = posX;
+            _posY = posY;
         }
     }
 }

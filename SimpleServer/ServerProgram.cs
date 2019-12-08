@@ -194,13 +194,13 @@ namespace SimpleServer
                     
                     // Create requested character, and then send it to other users as well and give control to the client that requested character
                     case PacketType.CREATECHARACTER:
-                        CreateCharacter createCharacterPacket = (CreateCharacter)packet;
+                        CreateCharacterPacket createCharacterPacket = (CreateCharacterPacket)packet;
                         _characters.Add(new Character(_count, createCharacterPacket._ColourR, createCharacterPacket._ColourG, createCharacterPacket._ColourB));
                         foreach (Client fClient in _clients)
                         {
                             foreach (Character character in _characters)
                             {
-                                client.SendPacketTCP(new CreateCharacter(character._id ,character._ColourR, character._ColourG, character._ColourB), fClient);
+                                client.SendPacketTCP(new CreateCharacterPacket(character._id ,character._ColourR, character._ColourG, character._ColourB), fClient);
                             }
                         }
                         client.SendPacketTCP(new AssignCharacterPacket(), client);
@@ -239,7 +239,7 @@ namespace SimpleServer
 
             while (true)
             {
-                client.UDPSend(new NicknamesList(_clientsNicknames));
+                client.UDPSend(new NicknamesListPacket(_clientsNicknames));
                 for (var i = 0; i < _characters.Count; i++)
                 {
                     client.UDPSend(new CharacterPositionPacket(i, _characters[i]._PosX, _characters[i]._PosY, _characters[i]._direction));
@@ -272,6 +272,21 @@ namespace SimpleServer
                             }
 
                         });
+                        break;
+
+                    case PacketType.SPAWNBOMB:
+                        Console.WriteLine("BOMB SPAWNED");
+                        _clients.ForEach(cl =>
+                        {
+                            if (cl != client)
+                            {
+                                cl.UDPSend(packet);
+                            }
+                        });
+                        //client.UDPSend(packet);
+                        break;
+
+                    default:
                         break;
                 }
             }

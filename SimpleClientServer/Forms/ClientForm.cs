@@ -88,6 +88,10 @@ namespace SimpleServer
             }
         }
 
+        //
+        ////  GAME RELATED
+        //
+
         public void UpdateCharacterPosition(int id, float x, float y, int direction)
         {
             if (client._playerId != id)
@@ -109,6 +113,24 @@ namespace SimpleServer
         public void CreateCharacter(int r, int g, int b)
         {
             bombermanMonoControl1.CreateCharacter(r, g, b);
+        }
+
+        private void bombermanMonoControl1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Space)
+            {
+                if (bombermanMonoControl1._characterList[client._playerId]._canSpawnBomb)
+                {
+                    bombermanMonoControl1.SpawnBomb(bombermanMonoControl1._characterList[client._playerId]._position, client._playerId);
+                    bombermanMonoControl1._characterList[client._playerId]._canSpawnBomb = false;
+                    client.SendPacketUDP(new Packets.SpawnBombPacket(bombermanMonoControl1._characterList[client._playerId]._position.X, bombermanMonoControl1._characterList[client._playerId]._position.Y, client._playerId));
+                }
+            }
+        }
+
+        public void SpawnBomb(float posX, float posY, int playerID)
+        {
+            bombermanMonoControl1.SpawnBomb(posX, posY, playerID);
         }
     }
 }

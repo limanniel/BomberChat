@@ -92,6 +92,7 @@
             this.bombermanMonoControl1.Size = new System.Drawing.Size(932, 719);
             this.bombermanMonoControl1.TabIndex = 5;
             this.bombermanMonoControl1.Text = "bombermanMonoControl1";
+            this.bombermanMonoControl1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.bombermanMonoControl1_KeyDown);
             // 
             // ClientForm
             // 

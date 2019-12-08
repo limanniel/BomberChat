@@ -111,7 +111,7 @@ namespace SimpleServer
             SendPacketTCP(new NicknamePacket(_nickname));
             // Send that you'd like an character
             Random random = new Random();
-            SendPacketTCP(new CreateCharacter(_playerId ,random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
+            SendPacketTCP(new CreateCharacterPacket(_playerId ,random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
         }
 
         void ProcessServerResponseTCP()
@@ -123,24 +123,24 @@ namespace SimpleServer
                 switch (packet.getPacketType())
                 {
                     case PacketType.CHATMESSAGE:
-                        ChatMessagePacket chPck = (ChatMessagePacket)packet;
-                        _messageForm.UpdateChatWindow(chPck._message);
+                        ChatMessagePacket chatMessagePacket = (ChatMessagePacket)packet;
+                        _messageForm.UpdateChatWindow(chatMessagePacket._message);
                         break;
 
                     case PacketType.NICKNAME:
                         break;
 
                     case PacketType.LOGIN:
-                        LoginPacket lgnPacket = (LoginPacket)packet;
-                        _playerId = lgnPacket._id;
-                        _udpClient.Connect((IPEndPoint)lgnPacket._endPoint);
+                        LoginPacket loginPacket = (LoginPacket)packet;
+                        _playerId = loginPacket._id;
+                        _udpClient.Connect((IPEndPoint)loginPacket._endPoint);
                         _udpReaderThread = new Thread(new ThreadStart(ProcessServerResponseReadUDP));
                         _udpReaderThread.Start();
                         Console.WriteLine("UDP CONNECTED!");
                         break;
 
                     case PacketType.CREATECHARACTER:
-                        CreateCharacter createCharacterPacket = (CreateCharacter)packet;
+                        CreateCharacterPacket createCharacterPacket = (CreateCharacterPacket)packet;
 
                         // create character if it isn't already locally created
                         for (var i = 0; i < _localCharactersIds.Count; i++)
@@ -184,7 +184,7 @@ namespace SimpleServer
                     {
                         case PacketType.NICKNAMESLIST:
                             // Update local nicklist only if it's different from server one
-                            NicknamesList nicknameListPacket = packet as NicknamesList;
+                            NicknamesListPacket nicknameListPacket = packet as NicknamesListPacket;
                             if (!_nicknamesList.SequenceEqual(nicknameListPacket._nicknamesList))
                             {
                                 _nicknamesList = nicknameListPacket._nicknamesList;
@@ -196,6 +196,12 @@ namespace SimpleServer
                             CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
                             //Console.WriteLine("Character position packet!: " + characterPositionPacket._x + " " + characterPositionPacket._y);
                             _messageForm.UpdateCharacterPosition(characterPositionPacket._id, characterPositionPacket._x, characterPositionPacket._y, characterPositionPacket._direction);
+                            break;
+
+                        case PacketType.SPAWNBOMB:
+                            SpawnBombPacket spawnBombPacket = (SpawnBombPacket)packet;
+                            Console.WriteLine("CLIENT: RETRIEVED BOMB LOCATION");
+                            _messageForm.SpawnBomb(spawnBombPacket._posX, spawnBombPacket._posY, spawnBombPacket._id);
                             break;
 
                         default:

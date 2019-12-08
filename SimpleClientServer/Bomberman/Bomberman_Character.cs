@@ -2,7 +2,6 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using Microsoft.Xna.Framework.Content;
-using System.Collections.Generic;
 
 namespace Bomberman
 {
@@ -15,6 +14,7 @@ namespace Bomberman
         public bool _isMoving { get; private set; }
         public bool _possessed { get; set; }
         public int _direction { get; private set; }
+        public bool _canSpawnBomb { get; set; }
 
         public Bomberman_Character(ContentManager contentManager, Color color)
         {
@@ -22,6 +22,7 @@ namespace Bomberman
             _animatedSprite = new AnimatedSprite(_texture, 8, 4, color);
             _position = new Vector2(0.0f, 0.0f);
             _possessed = false;
+            _canSpawnBomb = true;
         }
 
         public void Update(GameTime gameTime)
