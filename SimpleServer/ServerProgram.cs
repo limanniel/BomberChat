@@ -111,6 +111,27 @@ namespace SimpleServer
                     // Chat Meesage Packet Detected
                     case PacketType.CHATMESSAGE:
                         ChatMessagePacket chatPacket = packet as ChatMessagePacket;
+
+                        // Direct message
+                        if (chatPacket._message[0] == '@') 
+                            {
+                                string receiver = chatPacket._message.Substring(0, chatPacket._message.IndexOf(' ')); // Extract receipent
+                                string message = chatPacket._message.Substring(chatPacket._message.IndexOf(' ') + 1, (chatPacket._message.Length - receiver.Length) - 1); // Extract Message
+                                receiver = receiver.Remove(0, 1); // Remove @ prefix
+                                int index = _clients.FindIndex(cl => cl._nickname == receiver); // Check if receipent is on the server
+
+                                if (index != -1)
+                                {
+                                    _clients[index].SendPacketTCP(new DirectMessagePacket("[DIRECT MESSAGE] " + client._nickname, message), _clients[index]);
+                                }
+                                else
+                                {
+                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] ", "User of that id hasn't been found :c"), client);
+                                }
+                                break;
+                            }
+
+                        // Normal Message
                         switch (chatPacket._message)
                         {
                         // Hangman command activation

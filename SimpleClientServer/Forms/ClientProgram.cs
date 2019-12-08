@@ -127,6 +127,11 @@ namespace SimpleServer
                         _messageForm.UpdateChatWindow(chatMessagePacket._nickname, chatMessagePacket._message);
                         break;
 
+                    case PacketType.DIRECTMESSAGE:
+                        DirectMessagePacket directMessagePacket = (DirectMessagePacket)packet;
+                        _messageForm.UpdateChatWindow(directMessagePacket._receiver, directMessagePacket._message);
+                        break;
+
                     case PacketType.NICKNAME:
                         break;
 
