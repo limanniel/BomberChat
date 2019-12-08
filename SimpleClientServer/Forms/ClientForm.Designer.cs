@@ -1,4 +1,4 @@
-﻿namespace SimpleServer
+namespace SimpleServer
 {
     partial class ClientForm
     {

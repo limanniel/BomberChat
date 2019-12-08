@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -30,7 +30,19 @@ namespace SimpleServer
             else
             {
                 messageDisplayBox.Text += nickname;
-                messageDisplayBox.Text += " says: ";
+                if (nickname.Contains("[DIRECT MESSAGE]"))
+                {
+                    messageDisplayBox.Text += " whispers: ";
+                }
+                else if (nickname.Contains("[SERVER]"))
+                {
+                    messageDisplayBox.Text += " ";
+                }
+                else
+                {
+                    messageDisplayBox.Text += " says: ";
+                }
+                
                 messageDisplayBox.Text += message;
                 messageDisplayBox.SelectionStart = messageDisplayBox.Text.Length;
                 messageDisplayBox.ScrollToCaret();
