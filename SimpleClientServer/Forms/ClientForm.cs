@@ -150,11 +150,15 @@ namespace SimpleServer
         {
             if (e.KeyCode == Keys.Space)
             {
-                if (bombermanMonoControl1._characterList[client._playerId]._canSpawnBomb)
+                int index = bombermanMonoControl1._characterList.FindIndex(cl => cl._id == client._playerId);
+                if (index != -1)
                 {
-                    bombermanMonoControl1.SpawnBomb(bombermanMonoControl1._characterList[client._playerId]._position, client._playerId);
-                    bombermanMonoControl1._characterList[client._playerId]._canSpawnBomb = false;
-                    client.SendPacketUDP(new Packets.SpawnBombPacket(bombermanMonoControl1._characterList[client._playerId]._position.X, bombermanMonoControl1._characterList[client._playerId]._position.Y, client._playerId));
+                    if (bombermanMonoControl1._characterList[index]._canSpawnBomb)
+                    {
+                        bombermanMonoControl1.SpawnBomb(bombermanMonoControl1._characterList[index]._position, client._playerId);
+                        bombermanMonoControl1._characterList[index]._canSpawnBomb = false;
+                        client.SendPacketUDP(new Packets.SpawnBombPacket(bombermanMonoControl1._characterList[index]._position.X, bombermanMonoControl1._characterList[index]._position.Y, client._playerId));
+                    }
                 }
             }
 

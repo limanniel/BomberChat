@@ -35,7 +35,12 @@ namespace Bomberman
             {
                 if (_bombList[i]._remove)
                 {
-                    _characterList[_bombList[i]._playerID]._canSpawnBomb = true;
+                    int index = _characterList.FindIndex(cl => cl._id == _bombList[i]._playerID);
+                    if (index != -1)
+                    {
+                        _characterList[index]._canSpawnBomb = true;
+                    }
+
                     _bombList.RemoveAt(i);
                     continue;
                 }

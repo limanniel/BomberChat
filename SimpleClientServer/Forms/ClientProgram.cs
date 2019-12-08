@@ -231,14 +231,21 @@ namespace SimpleServer
         {
             while (_udpClient.Client.Connected)
             {
-                if (_localCharactersIds.Contains(_playerId))
+                try
                 {
-                    int index = _messageForm.bombermanMonoControl1._characterList.FindIndex(cl => cl._id == _playerId);
-                    //Keep Sending Character Position
-                    if (_messageForm.bombermanMonoControl1._characterList[index]._isMoving)
+                    if (_localCharactersIds.Contains(_playerId))
                     {
-                        SendPacketUDP(new CharacterPositionPacket(_playerId, _messageForm.bombermanMonoControl1._characterList[index]._position.X, _messageForm.bombermanMonoControl1._characterList[index]._position.Y, _messageForm.bombermanMonoControl1._characterList[index]._direction));
+                        int index = _messageForm.bombermanMonoControl1._characterList.FindIndex(cl => cl._id == _playerId);
+                        //Keep Sending Character Position
+                        if (_messageForm.bombermanMonoControl1._characterList[index]._isMoving)
+                        {
+                            SendPacketUDP(new CharacterPositionPacket(_playerId, _messageForm.bombermanMonoControl1._characterList[index]._position.X, _messageForm.bombermanMonoControl1._characterList[index]._position.Y, _messageForm.bombermanMonoControl1._characterList[index]._direction));
+                        }
                     }
+                }
+                catch
+                {
+
                 }
             }
         }
