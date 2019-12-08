@@ -38,7 +38,9 @@
             // 
             // messageDisplayBox
             // 
+            this.messageDisplayBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.messageDisplayBox.Location = new System.Drawing.Point(12, 12);
+            this.messageDisplayBox.MaxLength = 255;
             this.messageDisplayBox.Name = "messageDisplayBox";
             this.messageDisplayBox.ReadOnly = true;
             this.messageDisplayBox.Size = new System.Drawing.Size(556, 353);

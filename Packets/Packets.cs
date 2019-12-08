@@ -27,10 +27,12 @@ namespace Packets
     [Serializable]
     public class ChatMessagePacket : Packet
     {
-        public string _message = string.Empty;
-        public ChatMessagePacket(string message)
+        public string _nickname;
+        public string _message;
+        public ChatMessagePacket(string nickname, string message)
         {
             _type = PacketType.CHATMESSAGE;
+            _nickname = nickname;
             _message = message;
         }
     }
