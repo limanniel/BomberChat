@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
@@ -6,7 +6,7 @@ namespace SimpleServer
 {
     public partial class ClientForm : Form
     {
-        delegate void UpdateChatWindowDelegate(string message);
+        delegate void UpdateChatWindowDelegate(string nickname, string message);
         delegate void UpdateNicknamesListDelegate(ref List<string> nicknamesList);
         UpdateChatWindowDelegate updateChatWindowDelegate;
         UpdateNicknamesListDelegate updateNicknamesDelegate;
@@ -21,14 +21,28 @@ namespace SimpleServer
             chatSendBox.Select();
         }
 
-        public void UpdateChatWindow(string message)
+        public void UpdateChatWindow(string nickname, string message)
         {
             if (messageDisplayBox.InvokeRequired)
             {
-                Invoke(updateChatWindowDelegate, message);
+                Invoke(updateChatWindowDelegate, nickname, message);
             }
             else
             {
+                messageDisplayBox.Text += nickname;
+                if (nickname.Contains("[DIRECT MESSAGE]"))
+                {
+                    messageDisplayBox.Text += " whispers: ";
+                }
+                else if (nickname.Contains("[SERVER]"))
+                {
+                    messageDisplayBox.Text += " ";
+                }
+                else
+                {
+                    messageDisplayBox.Text += " says: ";
+                }
+                
                 messageDisplayBox.Text += message;
                 messageDisplayBox.SelectionStart = messageDisplayBox.Text.Length;
                 messageDisplayBox.ScrollToCaret();

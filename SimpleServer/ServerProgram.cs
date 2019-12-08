@@ -111,6 +111,27 @@ namespace SimpleServer
                     // Chat Meesage Packet Detected
                     case PacketType.CHATMESSAGE:
                         ChatMessagePacket chatPacket = packet as ChatMessagePacket;
+
+                        // Direct message
+                        if (chatPacket._message[0] == '@') 
+                            {
+                                string receiver = chatPacket._message.Substring(0, chatPacket._message.IndexOf(' ')); // Extract receipent
+                                string message = chatPacket._message.Substring(chatPacket._message.IndexOf(' ') + 1, (chatPacket._message.Length - receiver.Length) - 1); // Extract Message
+                                receiver = receiver.Remove(0, 1); // Remove @ prefix
+                                int index = _clients.FindIndex(cl => cl._nickname == receiver); // Check if receipent is on the server
+
+                                if (index != -1)
+                                {
+                                    _clients[index].SendPacketTCP(new DirectMessagePacket("[DIRECT MESSAGE] " + client._nickname, message), _clients[index]);
+                                }
+                                else
+                                {
+                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] ", "User of that id hasn't been found :c"), client);
+                                }
+                                break;
+                            }
+
+                        // Normal Message
                         switch (chatPacket._message)
                         {
                         // Hangman command activation
@@ -122,13 +143,13 @@ namespace SimpleServer
                                 _hangmanGame = new Hangman();
                                 foreach (Client fClient in _clients)
                                 {
-                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] " + client._nickname + " started hangman game!"), fClient);
-                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] \n" + _hangmanGame.GetObscuredWord() + "\n"), fClient);
+                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] ", client._nickname + " started hangman game!"), fClient);
+                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] \n", _hangmanGame.GetObscuredWord() + "\n"), fClient);
                                 }
                             }
                             else
                             {
-                                client.SendPacketTCP(new ChatMessagePacket("[SERVER] Hangman game is already in progress!"), client);
+                                client.SendPacketTCP(new ChatMessagePacket("[SERVER] ", "Hangman game is already in progress!"), client);
                             }
                             break;
 
@@ -152,7 +173,7 @@ namespace SimpleServer
                                     {
                                         foreach (Client fClient in _clients)
                                         {
-                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] User: " + client._nickname + " has guessed the word, being: " + _hangmanGame.GetHangmanWord()), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] ", "User: " + client._nickname + " has guessed the word, being: " + _hangmanGame.GetHangmanWord()), fClient);
                                         }
                                         _isHangmanActive = false;
                                     }
@@ -161,8 +182,8 @@ namespace SimpleServer
                                     {
                                         foreach (Client fClient in _clients)
                                         {
-                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n" + _hangmanGame.GetHangmanASCIIPicture()), fClient);
-                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] Out of guesses!, maybe next time you will have more luck :)"), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n", _hangmanGame.GetHangmanASCIIPicture()), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] ", "Out of guesses!, maybe next time you will have more luck :)"), fClient);
                                         }
                                         _isHangmanActive = false;
                                     }
@@ -171,8 +192,8 @@ namespace SimpleServer
                                     {
                                         foreach (Client fClient in _clients)
                                         {
-                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n" + _hangmanGame.GetHangmanASCIIPicture()), fClient);
-                                            client.SendPacketTCP(new ChatMessagePacket("\n" + _hangmanGame.GetObscuredWord() + "\n"), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n",  _hangmanGame.GetHangmanASCIIPicture()), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n", _hangmanGame.GetObscuredWord() + "\n"), fClient);
                                         }
                                     }
                                 }

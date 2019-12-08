@@ -9,6 +9,7 @@ namespace Packets
         EMPTY = 0,
         NICKNAME,
         CHATMESSAGE,
+        DIRECTMESSAGE,
         LOGIN,
         NICKNAMESLIST,
         CHARACTERPOSITION,
@@ -27,10 +28,26 @@ namespace Packets
     [Serializable]
     public class ChatMessagePacket : Packet
     {
-        public string _message = string.Empty;
-        public ChatMessagePacket(string message)
+        public string _nickname;
+        public string _message;
+        public ChatMessagePacket(string nickname, string message)
         {
             _type = PacketType.CHATMESSAGE;
+            _nickname = nickname;
+            _message = message;
+        }
+    }
+
+    [Serializable]
+    public class DirectMessagePacket : Packet
+    {
+        public string _receiver;
+        public string _message;
+
+        public DirectMessagePacket(string receiver, string message)
+        {
+            _type = PacketType.DIRECTMESSAGE;
+            _receiver = receiver;
             _message = message;
         }
     }

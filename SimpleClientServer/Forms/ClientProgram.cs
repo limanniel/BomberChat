@@ -124,7 +124,12 @@ namespace SimpleServer
                 {
                     case PacketType.CHATMESSAGE:
                         ChatMessagePacket chatMessagePacket = (ChatMessagePacket)packet;
-                        _messageForm.UpdateChatWindow(chatMessagePacket._message);
+                        _messageForm.UpdateChatWindow(chatMessagePacket._nickname, chatMessagePacket._message);
+                        break;
+
+                    case PacketType.DIRECTMESSAGE:
+                        DirectMessagePacket directMessagePacket = (DirectMessagePacket)packet;
+                        _messageForm.UpdateChatWindow(directMessagePacket._receiver, directMessagePacket._message);
                         break;
 
                     case PacketType.NICKNAME:
@@ -227,10 +232,10 @@ namespace SimpleServer
         public void SendMessage(string message)
         {
             //string prefixedMessage = _nickname + " says: " + message;
-            Packet packet = new ChatMessagePacket(message);
+            Packet packet = new ChatMessagePacket(_nickname ,message);
             SendPacketTCP(packet);
 
-            Console.WriteLine("SEND!");
+            Console.WriteLine("MESSAGE SENT!");
         }
 
         public void SetNickname(string nickname)
