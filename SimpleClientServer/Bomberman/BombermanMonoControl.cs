@@ -15,8 +15,8 @@ namespace Bomberman
         {
             base.Initialize();
             _characterList = new List<Bomberman_Character>();
-            _characterList.Add(new Bomberman_Character(Editor.Content, Color.White));
-            _characterList.Add(new Bomberman_Character(Editor.Content, Color.BlueViolet));
+            //_characterList.Add(new Bomberman_Character(Editor.Content, Color.White));
+            //_characterList.Add(new Bomberman_Character(Editor.Content, Color.BlueViolet));
         }
         protected override void Update(GameTime gameTime)
         {
@@ -35,6 +35,12 @@ namespace Bomberman
                 cl.Draw(Editor.spriteBatch);
             });
            // Editor.spriteBatch.End();
+        }
+
+        public void CreateCharacter(int r, int g, int b)
+        {
+            Color color = new Color(r, g, b, 255);
+            _characterList.Add(new Bomberman_Character(Editor.Content, color));
         }
     }
 }

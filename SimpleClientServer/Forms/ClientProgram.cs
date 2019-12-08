@@ -9,8 +9,6 @@ using System.Linq;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Collections.Generic;
 using System.Net;
-using Bomberman;
-using Microsoft.Xna.Framework;
 
 namespace SimpleServer
 {
@@ -33,11 +31,13 @@ namespace SimpleServer
 
     public class SimpleClient
     {
-        ClientForm _messageForm;
-        List<string> _nicknamesList;
+        public int _playerId;
         public string _nickname { get; private set; }
         public SetNicknameForm _nicknameForm { get; private set; }
-        public int _playerId;
+
+        ClientForm _messageForm;
+        List<string> _nicknamesList;
+        List<int> _localCharactersIds;
 
         // TCP
         TcpClient _tcpClient;
@@ -54,6 +54,8 @@ namespace SimpleServer
         public SimpleClient()
         {
             _nicknamesList = new List<string>();
+            _localCharactersIds = new List<int>();
+            _localCharactersIds.Add(-1); // Init list with one value
             _messageForm = new ClientForm(this);
             _nicknameForm = new SetNicknameForm(this);
             _playerId = 0;
@@ -104,9 +106,12 @@ namespace SimpleServer
             Console.WriteLine("STARTED");
             _tcpReaderThread.Start();
             // Log-in UDP
-            SendPacketTCP(new LoginPacket(_udpClient.Client.LocalEndPoint));
+            SendPacketTCP(new LoginPacket(_udpClient.Client.LocalEndPoint, _playerId));
             // Send initial nickname of the client
             SendPacketTCP(new NicknamePacket(_nickname));
+            // Send that you'd like an character
+            Random random = new Random();
+            SendPacketTCP(new CreateCharacter(_playerId ,random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
         }
 
         void ProcessServerResponseTCP()
@@ -127,18 +132,38 @@ namespace SimpleServer
 
                     case PacketType.LOGIN:
                         LoginPacket lgnPacket = (LoginPacket)packet;
+                        _playerId = lgnPacket._id;
                         _udpClient.Connect((IPEndPoint)lgnPacket._endPoint);
                         _udpReaderThread = new Thread(new ThreadStart(ProcessServerResponseReadUDP));
                         _udpReaderThread.Start();
-                        _udpWriterThread = new Thread(new ThreadStart(ProcessServerResponseWriteUDP));
-                        _udpWriterThread.Start();
                         Console.WriteLine("UDP CONNECTED!");
                         break;
 
+                    case PacketType.CREATECHARACTER:
+                        CreateCharacter createCharacterPacket = (CreateCharacter)packet;
+
+                        // create character if it isn't already locally created
+                        for (var i = 0; i < _localCharactersIds.Count; i++)
+                        {
+                            if (!_localCharactersIds.Contains(createCharacterPacket._id))
+                            {
+                                _messageForm.CreateCharacter(createCharacterPacket._ColourR, createCharacterPacket._ColourG, createCharacterPacket._ColourB);
+                                _localCharactersIds.Add(createCharacterPacket._id);
+                            }
+                        }
+
+                        // Create thread if it hasn't been created before // TO BE MOVED FROM HERE //
+                        if (_udpWriterThread == null)
+                        {
+                            _udpWriterThread = new Thread(new ThreadStart(ProcessServerResponseWriteUDP));
+                            _udpWriterThread.Start();
+
+                        }
+                        break;
+                    
+                    // Possess own character
                     case PacketType.ASSIGNCHARACTER:
-                        AssignCharacterPacket acPacket = (AssignCharacterPacket)packet;
-                        _playerId = acPacket._id;
-                        _messageForm.AssignCharacter(acPacket._id);
+                        _messageForm.AssignCharacter(_playerId);
                         break;
 
                     default:
@@ -185,10 +210,10 @@ namespace SimpleServer
         {
             while (_udpClient.Client.Connected)
             {
-                // Keep Sending Character Position
+                //Keep Sending Character Position
                 if (_messageForm.bombermanMonoControl1._characterList[_playerId]._isMoving)
                 {
-                    SendPacketUDP(new CharacterPositionPacket(_playerId ,_messageForm.bombermanMonoControl1._characterList[_playerId]._position.X, _messageForm.bombermanMonoControl1._characterList[_playerId]._position.Y, _messageForm.bombermanMonoControl1._characterList[_playerId]._direction));
+                    SendPacketUDP(new CharacterPositionPacket(_playerId, _messageForm.bombermanMonoControl1._characterList[_playerId]._position.X, _messageForm.bombermanMonoControl1._characterList[_playerId]._position.Y, _messageForm.bombermanMonoControl1._characterList[_playerId]._direction));
                 }
             }
         }

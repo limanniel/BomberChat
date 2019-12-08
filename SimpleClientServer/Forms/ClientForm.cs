@@ -109,5 +109,10 @@ namespace SimpleServer
         {
             bombermanMonoControl1._characterList[id]._possessed = true;
         }
+
+        public void CreateCharacter(int r, int g, int b)
+        {
+            bombermanMonoControl1.CreateCharacter(r, g, b);
+        }
     }
 }

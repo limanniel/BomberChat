@@ -11,19 +11,40 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SimpleServer
 {
-    class CharacterPosition
+    class Character
     {
-        public float _x { get; set; }
-        public float _y { get; set; }
+        // Character Position
+        public int _id;
+        public float _PosX { get; set; }
+        public float _PosY { get; set; }
         public int _direction { get; set; }
-
-        public CharacterPosition()
+        // Character Colour
+        public int _ColourR, _ColourG, _ColourB;
+        public Character(int id, int r, int g, int b)
         {
-            _x = 0.0f;
-            _y = 0.0f;
+            _id = id;
+            _PosX = 0.0f;
+            _PosY = 0.0f;
             _direction = 0;
+            _ColourR = r;
+            _ColourG = g;
+            _ColourB = b;
         }
     }
+
+    //class CharacterPosition
+    //{
+    //    public float _x { get; set; }
+    //    public float _y { get; set; }
+    //    public int _direction { get; set; }
+
+    //    public CharacterPosition()
+    //    {
+    //        _x = 0.0f;
+    //        _y = 0.0f;
+    //        _direction = 0;
+    //    }
+    //}
 
     class ServerProgram
     {
@@ -45,14 +66,16 @@ namespace SimpleServer
         Hangman _hangmanGame;
         bool _isHangmanActive;
         int _count;
-        List<CharacterPosition> _characterPositions;
+        //List<CharacterPosition> _characterPositions;
+        List<Character> _characters;
 
         public Server(string ipAddress, int port)
         {
             _clients = new List<Client>();
             _clientsNicknames = new List<string>();
             _iPAddress = IPAddress.Parse(ipAddress);
-            _characterPositions = new List<CharacterPosition>();
+            //_characterPositions = new List<CharacterPosition>();
+            _characters = new List<Character>();
             _count = 0;
 
             try
@@ -183,10 +206,23 @@ namespace SimpleServer
                     // UDP packet detected
                     case PacketType.LOGIN:
                         HandleLoginPacket(client, (LoginPacket)packet);
-                            client.SendPacketTCP(new AssignCharacterPacket(_count), client);
-                            _characterPositions.Add(new CharacterPosition());
-                            client._id = _count;
-                            _count++;
+                            //_characterPositions.Add(new CharacterPosition());
+                        break;
+                    
+                    // Create requested character, and then send it to other users as well and give control to the client that requested character
+                    case PacketType.CREATECHARACTER:
+                        CreateCharacter createCharacterPacket = (CreateCharacter)packet;
+                        _characters.Add(new Character(_count, createCharacterPacket._ColourR, createCharacterPacket._ColourG, createCharacterPacket._ColourB));
+                        foreach (Client fClient in _clients)
+                        {
+                            foreach (Character character in _characters)
+                            {
+                                client.SendPacketTCP(new CreateCharacter(character._id ,character._ColourR, character._ColourG, character._ColourB), fClient);
+                            }
+                        }
+                        client.SendPacketTCP(new AssignCharacterPacket(), client);
+                        client._id = _count;
+                        _count++;
                         break;
 
                     default:
@@ -207,7 +243,7 @@ namespace SimpleServer
         void HandleLoginPacket(Client client, LoginPacket loginpacket)
         {
             client.UDPConnect(loginpacket._endPoint);
-            client.SendPacketTCP(new LoginPacket(client._udpSocket.LocalEndPoint), client);
+            client.SendPacketTCP(new LoginPacket(client._udpSocket.LocalEndPoint, _count), client);
             Thread w = new Thread(new ParameterizedThreadStart(UDPClientWriteMethod));
             Thread r = new Thread(new ParameterizedThreadStart(UDPClientReadMethod));
             w.Start(client);
@@ -221,9 +257,9 @@ namespace SimpleServer
             while (true)
             {
                 client.UDPSend(new NicknamesList(_clientsNicknames));
-                for (var i = 0; i < _characterPositions.Count; i++)
+                for (var i = 0; i < _characters.Count; i++)
                 {
-                    client.UDPSend(new CharacterPositionPacket(i, _characterPositions[i]._x, _characterPositions[i]._y, _characterPositions[i]._direction));
+                    client.UDPSend(new CharacterPositionPacket(i, _characters[i]._PosX, _characters[i]._PosY, _characters[i]._direction));
                 }
                 
                 Thread.Sleep(10);
@@ -244,12 +280,12 @@ namespace SimpleServer
                         CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
                         _clients.ForEach(cl => 
                         {
-                            if (_characterPositions[characterPositionPacket._id]._x != characterPositionPacket._x || _characterPositions[characterPositionPacket._id]._y != characterPositionPacket._y)
+                            if (_characters[characterPositionPacket._id]._PosX != characterPositionPacket._x || _characters[characterPositionPacket._id]._PosY != characterPositionPacket._y)
                             {
                                 Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
-                                _characterPositions[characterPositionPacket._id]._x = characterPositionPacket._x;
-                                _characterPositions[characterPositionPacket._id]._y = characterPositionPacket._y;
-                                _characterPositions[characterPositionPacket._id]._direction = characterPositionPacket._direction;
+                                _characters[characterPositionPacket._id]._PosX = characterPositionPacket._x;
+                                _characters[characterPositionPacket._id]._PosY = characterPositionPacket._y;
+                                _characters[characterPositionPacket._id]._direction = characterPositionPacket._direction;
                             }
 
                         });

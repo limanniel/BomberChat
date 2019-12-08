@@ -12,7 +12,8 @@ namespace Packets
         LOGIN,
         NICKNAMESLIST,
         CHARACTERPOSITION,
-        ASSIGNCHARACTER
+        ASSIGNCHARACTER,
+        CREATECHARACTER,
     }
 
     [Serializable]
@@ -47,11 +48,13 @@ namespace Packets
     [Serializable]
     public class LoginPacket : Packet
     {
+        public int _id;
         public EndPoint _endPoint;
-        public LoginPacket(EndPoint endpoint)
+        public LoginPacket(EndPoint endpoint, int id)
         {
             _type = PacketType.LOGIN;
             _endPoint = endpoint;
+            _id = id;
         }
     }
 
@@ -86,11 +89,24 @@ namespace Packets
     [Serializable]
     public class AssignCharacterPacket : Packet
     {
-        public int _id;
-        public AssignCharacterPacket(int id)
+        public AssignCharacterPacket()
         {
             _type = PacketType.ASSIGNCHARACTER;
+        }
+    }
+
+    [Serializable]
+    public class CreateCharacter : Packet
+    {
+        public int _id;
+        public int _ColourR, _ColourG, _ColourB;
+        public CreateCharacter(int id, int r, int g, int b)
+        {
+            _type = PacketType.CREATECHARACTER;
             _id = id;
+            _ColourR = r;
+            _ColourG = g;
+            _ColourB = b;
         }
     }
 }
