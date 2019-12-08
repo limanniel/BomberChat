@@ -11,15 +11,17 @@ namespace Bomberman
         Texture2D _texture;
         public Vector2 _position;
         const float _CHARACTER_SPEED = 0.25f;
+        public int _id { get; set; }
         public bool _isMoving { get; private set; }
         public bool _possessed { get; set; }
         public int _direction { get; private set; }
         public bool _canSpawnBomb { get; set; }
 
-        public Bomberman_Character(ContentManager contentManager, Color color)
+        public Bomberman_Character(ContentManager contentManager, int id, Color color)
         {
             _texture = contentManager.Load<Texture2D>("Textures/bomberman_spritesheet");
             _animatedSprite = new AnimatedSprite(_texture, 8, 4, color);
+            _id = id;
             _position = new Vector2(0.0f, 0.0f);
             _possessed = false;
             _canSpawnBomb = true;

@@ -21,10 +21,15 @@ namespace Bomberman
         protected override void Update(GameTime gameTime)
         {
             base.Update(gameTime);
-            _characterList.ForEach(cl =>
+
+            for (var i = 0; i < _characterList.Count; i++)
             {
-                cl.Update(gameTime);
-            });
+                _characterList[i].Update(gameTime);
+            }
+            //_characterList.ForEach(cl =>
+            //{
+            //    cl.Update(gameTime);
+            //});
 
             for (var i = 0; i < _bombList.Count; i++)
             {
@@ -41,10 +46,14 @@ namespace Bomberman
         protected override void Draw()
         {
             base.Draw();
-            _characterList.ForEach(cl =>
+            for (var i = 0; i < _characterList.Count; i++)
             {
-                cl.Draw(Editor.spriteBatch);
-            });
+                _characterList[i].Draw(Editor.spriteBatch);
+            }
+            //_characterList.ForEach(cl =>
+            //{
+            //    cl.Draw(Editor.spriteBatch);
+            //});
             _bombList.ForEach(bl =>
             {
                 bl.Draw(Editor.spriteBatch);
@@ -54,10 +63,15 @@ namespace Bomberman
            // Editor.spriteBatch.End();
         }
 
-        public void CreateCharacter(int r, int g, int b)
+        public void CreateCharacter(int id, int r, int g, int b)
         {
             Color color = new Color(r, g, b, 255);
-            _characterList.Add(new Bomberman_Character(Editor.Content, color));
+            _characterList.Add(new Bomberman_Character(Editor.Content, id, color));
+        }
+
+        public void RemoveCharacet(int id)
+        {
+            _characterList.RemoveAt(id);
         }
 
         public void SpawnBomb(Vector2 position, int id)

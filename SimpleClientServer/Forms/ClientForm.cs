@@ -110,23 +110,40 @@ namespace SimpleServer
         {
             if (client._playerId != id)
             {
-                if (bombermanMonoControl1._characterList[id]._position.X != x || bombermanMonoControl1._characterList[id]._position.Y != y)
+                int index = bombermanMonoControl1._characterList.FindIndex(cl => cl._id == id);
+                if (index != -1)
                 {
-                    bombermanMonoControl1._characterList[id]._position.X = x;
-                    bombermanMonoControl1._characterList[id]._position.Y = y;
-                    bombermanMonoControl1._characterList[id].UpdateAnimation(bombermanMonoControl1.Editor.GameTime, direction);
+                    if (bombermanMonoControl1._characterList[index]._position.X != x || bombermanMonoControl1._characterList[index]._position.Y != y)
+                    {
+                        bombermanMonoControl1._characterList[index]._position.X = x;
+                        bombermanMonoControl1._characterList[index]._position.Y = y;
+                        bombermanMonoControl1._characterList[index].UpdateAnimation(bombermanMonoControl1.Editor.GameTime, direction);
+                    }
                 }
             }
         }
 
         public void AssignCharacter(int id)
         {
-            bombermanMonoControl1._characterList[id]._possessed = true;
+            int index = CharacterIDToIndex(id);
+            if (index != -1)
+            {
+                bombermanMonoControl1._characterList[index]._possessed = true;
+            }
         }
 
-        public void CreateCharacter(int r, int g, int b)
+        public void CreateCharacter(int id, int r, int g, int b)
         {
-            bombermanMonoControl1.CreateCharacter(r, g, b);
+            bombermanMonoControl1.CreateCharacter(id, r, g, b);
+        }
+
+        public void RemoveCharacter(int id)
+        {
+            int index = CharacterIDToIndex(id);
+            if (index != -1)
+            {
+                bombermanMonoControl1.RemoveCharacet(index);
+            }
         }
 
         private void bombermanMonoControl1_KeyDown(object sender, KeyEventArgs e)
@@ -140,11 +157,21 @@ namespace SimpleServer
                     client.SendPacketUDP(new Packets.SpawnBombPacket(bombermanMonoControl1._characterList[client._playerId]._position.X, bombermanMonoControl1._characterList[client._playerId]._position.Y, client._playerId));
                 }
             }
+
+            if (e.KeyCode == Keys.E)
+            {
+                client.SendPacketTCP(new Packets.RemoveCharacterPacket(client._playerId));
+            }
         }
 
         public void SpawnBomb(float posX, float posY, int playerID)
         {
             bombermanMonoControl1.SpawnBomb(posX, posY, playerID);
+        }
+
+        public int CharacterIDToIndex(int id)
+        {
+            return bombermanMonoControl1._characterList.FindIndex(cl => cl._id == id);
         }
     }
 }
