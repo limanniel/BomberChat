@@ -206,7 +206,6 @@ namespace SimpleServer
                     // UDP packet detected
                     case PacketType.LOGIN:
                         HandleLoginPacket(client, (LoginPacket)packet);
-                            //_characterPositions.Add(new CharacterPosition());
                         break;
                     
                     // Create requested character, and then send it to other users as well and give control to the client that requested character
@@ -282,7 +281,7 @@ namespace SimpleServer
                         {
                             if (_characters[characterPositionPacket._id]._PosX != characterPositionPacket._x || _characters[characterPositionPacket._id]._PosY != characterPositionPacket._y)
                             {
-                                Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
+                                //Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
                                 _characters[characterPositionPacket._id]._PosX = characterPositionPacket._x;
                                 _characters[characterPositionPacket._id]._PosY = characterPositionPacket._y;
                                 _characters[characterPositionPacket._id]._direction = characterPositionPacket._direction;
