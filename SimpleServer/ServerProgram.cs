@@ -11,6 +11,27 @@ using System.Runtime.Serialization.Formatters.Binary;
 
 namespace SimpleServer
 {
+    class Character
+    {
+        // Character Position
+        public int _id;
+        public float _PosX { get; set; }
+        public float _PosY { get; set; }
+        public int _direction { get; set; }
+        // Character Colour
+        public int _ColourR, _ColourG, _ColourB;
+        public Character(int id, int r, int g, int b)
+        {
+            _id = id;
+            _PosX = 0.0f;
+            _PosY = 0.0f;
+            _direction = 0;
+            _ColourR = r;
+            _ColourG = g;
+            _ColourB = b;
+        }
+    }
+
     class ServerProgram
     {
         static void Main(string[] args)
@@ -30,12 +51,16 @@ namespace SimpleServer
         List<string> _clientsNicknames;
         Hangman _hangmanGame;
         bool _isHangmanActive;
+        int _count;
+        List<Character> _characters;
 
         public Server(string ipAddress, int port)
         {
             _clients = new List<Client>();
             _clientsNicknames = new List<string>();
             _iPAddress = IPAddress.Parse(ipAddress);
+            _characters = new List<Character>();
+            _count = 0;
 
             try
             {
@@ -86,6 +111,27 @@ namespace SimpleServer
                     // Chat Meesage Packet Detected
                     case PacketType.CHATMESSAGE:
                         ChatMessagePacket chatPacket = packet as ChatMessagePacket;
+
+                        // Direct message
+                        if (chatPacket._message[0] == '@') 
+                            {
+                                string receiver = chatPacket._message.Substring(0, chatPacket._message.IndexOf(' ')); // Extract receipent
+                                string message = chatPacket._message.Substring(chatPacket._message.IndexOf(' ') + 1, (chatPacket._message.Length - receiver.Length) - 1); // Extract Message
+                                receiver = receiver.Remove(0, 1); // Remove @ prefix
+                                int index = _clients.FindIndex(cl => cl._nickname == receiver); // Check if receipent is on the server
+
+                                if (index != -1)
+                                {
+                                    _clients[index].SendPacketTCP(new DirectMessagePacket("[DIRECT MESSAGE] " + client._nickname, message), _clients[index]);
+                                }
+                                else
+                                {
+                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] ", "User of that id hasn't been found :c"), client);
+                                }
+                                break;
+                            }
+
+                        // Normal Message
                         switch (chatPacket._message)
                         {
                         // Hangman command activation
@@ -97,13 +143,13 @@ namespace SimpleServer
                                 _hangmanGame = new Hangman();
                                 foreach (Client fClient in _clients)
                                 {
-                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] " + client._nickname + " started hangman game!"), fClient);
-                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] \n" + _hangmanGame.GetObscuredWord() + "\n"), fClient);
+                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] ", client._nickname + " started hangman game!"), fClient);
+                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] \n", _hangmanGame.GetObscuredWord() + "\n"), fClient);
                                 }
                             }
                             else
                             {
-                                client.SendPacketTCP(new ChatMessagePacket("[SERVER] Hangman game is already in progress!"), client);
+                                client.SendPacketTCP(new ChatMessagePacket("[SERVER] ", "Hangman game is already in progress!"), client);
                             }
                             break;
 
@@ -127,7 +173,7 @@ namespace SimpleServer
                                     {
                                         foreach (Client fClient in _clients)
                                         {
-                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] User: " + client._nickname + " has guessed the word, being: " + _hangmanGame.GetHangmanWord()), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] ", "User: " + client._nickname + " has guessed the word, being: " + _hangmanGame.GetHangmanWord()), fClient);
                                         }
                                         _isHangmanActive = false;
                                     }
@@ -136,8 +182,8 @@ namespace SimpleServer
                                     {
                                         foreach (Client fClient in _clients)
                                         {
-                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n" + _hangmanGame.GetHangmanASCIIPicture()), fClient);
-                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] Out of guesses!, maybe next time you will have more luck :)"), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n", _hangmanGame.GetHangmanASCIIPicture()), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] ", "Out of guesses!, maybe next time you will have more luck :)"), fClient);
                                         }
                                         _isHangmanActive = false;
                                     }
@@ -146,8 +192,8 @@ namespace SimpleServer
                                     {
                                         foreach (Client fClient in _clients)
                                         {
-                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n" + _hangmanGame.GetHangmanASCIIPicture()), fClient);
-                                            client.SendPacketTCP(new ChatMessagePacket("\n" + _hangmanGame.GetObscuredWord() + "\n"), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n",  _hangmanGame.GetHangmanASCIIPicture()), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n", _hangmanGame.GetObscuredWord() + "\n"), fClient);
                                         }
                                     }
                                 }
@@ -165,6 +211,22 @@ namespace SimpleServer
                     // UDP packet detected
                     case PacketType.LOGIN:
                         HandleLoginPacket(client, (LoginPacket)packet);
+                        break;
+                    
+                    // Create requested character, and then send it to other users as well and give control to the client that requested character
+                    case PacketType.CREATECHARACTER:
+                        CreateCharacterPacket createCharacterPacket = (CreateCharacterPacket)packet;
+                        _characters.Add(new Character(_count, createCharacterPacket._ColourR, createCharacterPacket._ColourG, createCharacterPacket._ColourB));
+                        foreach (Client fClient in _clients)
+                        {
+                            foreach (Character character in _characters)
+                            {
+                                client.SendPacketTCP(new CreateCharacterPacket(character._id ,character._ColourR, character._ColourG, character._ColourB), fClient);
+                            }
+                        }
+                        client.SendPacketTCP(new AssignCharacterPacket(), client);
+                        client._id = _count;
+                        _count++;
                         break;
 
                     default:
@@ -185,30 +247,70 @@ namespace SimpleServer
         void HandleLoginPacket(Client client, LoginPacket loginpacket)
         {
             client.UDPConnect(loginpacket._endPoint);
-            client.SendPacketTCP(new LoginPacket(client._udpSocket.LocalEndPoint), client);
-            Thread u = new Thread(new ParameterizedThreadStart(UDPClientMethod));
-            u.Start(client);
+            client.SendPacketTCP(new LoginPacket(client._udpSocket.LocalEndPoint, _count), client);
+            Thread w = new Thread(new ParameterizedThreadStart(UDPClientWriteMethod));
+            Thread r = new Thread(new ParameterizedThreadStart(UDPClientReadMethod));
+            w.Start(client);
+            r.Start(client);
         }
 
-        private void UDPClientMethod(object clientObj)
+        private void UDPClientWriteMethod(object clientObj)
         {
             Client client = (Client)clientObj;
-            Packet packet;
 
             while (true)
             {
-                client.UDPSend(new NicknamesList(_clientsNicknames));
-
-                //packet = client.UDPRead(client);
-                //switch (packet.getPacketType())
-                //{
-                //    default:
-                //        break;
-                //}
-
-                Thread.Sleep(1000);
+                client.UDPSend(new NicknamesListPacket(_clientsNicknames));
+                for (var i = 0; i < _characters.Count; i++)
+                {
+                    client.UDPSend(new CharacterPositionPacket(i, _characters[i]._PosX, _characters[i]._PosY, _characters[i]._direction));
+                }
+                
+                Thread.Sleep(10);
             }
 
+        }
+
+        private void UDPClientReadMethod(object clientObj)
+        {
+            Client client = (Client)clientObj;
+            Packet packet;
+            while (true)
+            {
+                packet = client.UDPRead(client);
+                switch (packet.getPacketType())
+                {
+                    case PacketType.CHARACTERPOSITION:
+                        CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
+                        _clients.ForEach(cl => 
+                        {
+                            if (_characters[characterPositionPacket._id]._PosX != characterPositionPacket._x || _characters[characterPositionPacket._id]._PosY != characterPositionPacket._y)
+                            {
+                                //Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
+                                _characters[characterPositionPacket._id]._PosX = characterPositionPacket._x;
+                                _characters[characterPositionPacket._id]._PosY = characterPositionPacket._y;
+                                _characters[characterPositionPacket._id]._direction = characterPositionPacket._direction;
+                            }
+
+                        });
+                        break;
+
+                    case PacketType.SPAWNBOMB:
+                        Console.WriteLine("BOMB SPAWNED");
+                        _clients.ForEach(cl =>
+                        {
+                            if (cl != client)
+                            {
+                                cl.UDPSend(packet);
+                            }
+                        });
+                        //client.UDPSend(packet);
+                        break;
+
+                    default:
+                        break;
+                }
+            }
         }
 
         void UpdateClientsNicknameList()
@@ -228,6 +330,7 @@ namespace SimpleServer
         public Socket _udpSocket;
 
         public string _nickname { get; set; }
+        public int _id { get; set; }
         public BinaryReader Reader { get; private set; }
         public BinaryWriter Writer { get; private set; }
 
