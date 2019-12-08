@@ -32,20 +32,6 @@ namespace SimpleServer
         }
     }
 
-    //class CharacterPosition
-    //{
-    //    public float _x { get; set; }
-    //    public float _y { get; set; }
-    //    public int _direction { get; set; }
-
-    //    public CharacterPosition()
-    //    {
-    //        _x = 0.0f;
-    //        _y = 0.0f;
-    //        _direction = 0;
-    //    }
-    //}
-
     class ServerProgram
     {
         static void Main(string[] args)
@@ -66,7 +52,6 @@ namespace SimpleServer
         Hangman _hangmanGame;
         bool _isHangmanActive;
         int _count;
-        //List<CharacterPosition> _characterPositions;
         List<Character> _characters;
 
         public Server(string ipAddress, int port)
@@ -74,7 +59,6 @@ namespace SimpleServer
             _clients = new List<Client>();
             _clientsNicknames = new List<string>();
             _iPAddress = IPAddress.Parse(ipAddress);
-            //_characterPositions = new List<CharacterPosition>();
             _characters = new List<Character>();
             _count = 0;
 
@@ -206,7 +190,6 @@ namespace SimpleServer
                     // UDP packet detected
                     case PacketType.LOGIN:
                         HandleLoginPacket(client, (LoginPacket)packet);
-                            //_characterPositions.Add(new CharacterPosition());
                         break;
                     
                     // Create requested character, and then send it to other users as well and give control to the client that requested character
@@ -282,7 +265,7 @@ namespace SimpleServer
                         {
                             if (_characters[characterPositionPacket._id]._PosX != characterPositionPacket._x || _characters[characterPositionPacket._id]._PosY != characterPositionPacket._y)
                             {
-                                Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
+                                //Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
                                 _characters[characterPositionPacket._id]._PosX = characterPositionPacket._x;
                                 _characters[characterPositionPacket._id]._PosY = characterPositionPacket._y;
                                 _characters[characterPositionPacket._id]._direction = characterPositionPacket._direction;

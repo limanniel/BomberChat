@@ -66,7 +66,6 @@ namespace Bomberman
         }
         public void Draw(SpriteBatch spriteBatch)
         {
-            //spriteBatch.Draw(_texture, _position, _sourceRect, Color.White);
             _animatedSprite.Draw(spriteBatch, _position);
         }
 

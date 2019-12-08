@@ -15,8 +15,6 @@ namespace Bomberman
         {
             base.Initialize();
             _characterList = new List<Bomberman_Character>();
-            //_characterList.Add(new Bomberman_Character(Editor.Content, Color.White));
-            //_characterList.Add(new Bomberman_Character(Editor.Content, Color.BlueViolet));
         }
         protected override void Update(GameTime gameTime)
         {
@@ -29,11 +27,11 @@ namespace Bomberman
         protected override void Draw()
         {
             base.Draw();
-            //Editor.spriteBatch.Begin();
             _characterList.ForEach(cl =>
             {
                 cl.Draw(Editor.spriteBatch);
             });
+            //Editor.spriteBatch.Begin();
            // Editor.spriteBatch.End();
         }
 

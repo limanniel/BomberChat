@@ -46,6 +46,7 @@ namespace SimpleServer
             {
                 // Clear Previous Nicknames
                 NicknamesList.Items.Clear();
+
                 // Populate List with new nicknames
                 foreach (string nickname in nicknamesList)
                 {
@@ -89,8 +90,6 @@ namespace SimpleServer
 
         public void UpdateCharacterPosition(int id, float x, float y, int direction)
         {
-            //if (bombermanMonoControl1._characterList[0]._position.X != x || bombermanMonoControl1._characterList[0]._position.Y != y)
-            //{
             if (client._playerId != id)
             {
                 if (bombermanMonoControl1._characterList[id]._position.X != x || bombermanMonoControl1._characterList[id]._position.Y != y)
@@ -98,11 +97,8 @@ namespace SimpleServer
                     bombermanMonoControl1._characterList[id]._position.X = x;
                     bombermanMonoControl1._characterList[id]._position.Y = y;
                     bombermanMonoControl1._characterList[id].UpdateAnimation(bombermanMonoControl1.Editor.GameTime, direction);
-                    Console.WriteLine("Moving Pawn");
-
                 }
             }
-            //}
         }
 
         public void AssignCharacter(int id)
