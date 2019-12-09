@@ -33,6 +33,8 @@ namespace SimpleServer
             this.sendMessageButton = new System.Windows.Forms.Button();
             this.NicknamesList = new System.Windows.Forms.ListBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.ClearChatButton = new System.Windows.Forms.Button();
+            this.HelpInfoButton = new System.Windows.Forms.Button();
             this.bombermanMonoControl1 = new Bomberman.BombermanMonoControl();
             this.SuspendLayout();
             // 
@@ -52,7 +54,7 @@ namespace SimpleServer
             // 
             this.chatSendBox.BackColor = System.Drawing.Color.LightSteelBlue;
             this.chatSendBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.chatSendBox.Location = new System.Drawing.Point(12, 538);
+            this.chatSendBox.Location = new System.Drawing.Point(12, 550);
             this.chatSendBox.Name = "chatSendBox";
             this.chatSendBox.Size = new System.Drawing.Size(657, 37);
             this.chatSendBox.TabIndex = 1;
@@ -60,9 +62,9 @@ namespace SimpleServer
             // 
             // sendMessageButton
             // 
-            this.sendMessageButton.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.sendMessageButton.BackColor = System.Drawing.Color.AliceBlue;
             this.sendMessageButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.sendMessageButton.Location = new System.Drawing.Point(685, 538);
+            this.sendMessageButton.Location = new System.Drawing.Point(685, 550);
             this.sendMessageButton.Name = "sendMessageButton";
             this.sendMessageButton.Size = new System.Drawing.Size(103, 37);
             this.sendMessageButton.TabIndex = 2;
@@ -92,6 +94,28 @@ namespace SimpleServer
             this.label1.TabIndex = 4;
             this.label1.Text = "Active Users";
             // 
+            // ClearChatButton
+            // 
+            this.ClearChatButton.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.ClearChatButton.Location = new System.Drawing.Point(587, 508);
+            this.ClearChatButton.Name = "ClearChatButton";
+            this.ClearChatButton.Size = new System.Drawing.Size(93, 26);
+            this.ClearChatButton.TabIndex = 8;
+            this.ClearChatButton.Text = "Clear Chat";
+            this.ClearChatButton.UseVisualStyleBackColor = false;
+            this.ClearChatButton.MouseClick += new System.Windows.Forms.MouseEventHandler(this.ClearChatButton_MouseClick);
+            // 
+            // HelpInfoButton
+            // 
+            this.HelpInfoButton.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.HelpInfoButton.Location = new System.Drawing.Point(695, 508);
+            this.HelpInfoButton.Name = "HelpInfoButton";
+            this.HelpInfoButton.Size = new System.Drawing.Size(93, 26);
+            this.HelpInfoButton.TabIndex = 9;
+            this.HelpInfoButton.Text = "Help";
+            this.HelpInfoButton.UseVisualStyleBackColor = false;
+            this.HelpInfoButton.MouseClick += new System.Windows.Forms.MouseEventHandler(this.HelpInfoButton_MouseClick);
+            // 
             // bombermanMonoControl1
             // 
             this.bombermanMonoControl1.Location = new System.Drawing.Point(805, 4);
@@ -110,6 +134,8 @@ namespace SimpleServer
             this.AutoSize = true;
             this.BackColor = System.Drawing.Color.CornflowerBlue;
             this.ClientSize = new System.Drawing.Size(1560, 608);
+            this.Controls.Add(this.HelpInfoButton);
+            this.Controls.Add(this.ClearChatButton);
             this.Controls.Add(this.bombermanMonoControl1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.NicknamesList);
@@ -133,5 +159,7 @@ namespace SimpleServer
         private System.Windows.Forms.ListBox NicknamesList;
         private System.Windows.Forms.Label label1;
         public Bomberman.BombermanMonoControl bombermanMonoControl1;
+        private System.Windows.Forms.Button ClearChatButton;
+        private System.Windows.Forms.Button HelpInfoButton;
     }
 }

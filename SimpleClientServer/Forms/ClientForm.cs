@@ -118,6 +118,20 @@ namespace SimpleServer
             }
         }
 
+        private void ClearChatButton_MouseClick(object sender, MouseEventArgs e)
+        {
+            messageDisplayBox.Clear();
+        }
+
+        private void HelpInfoButton_MouseClick(object sender, MouseEventArgs e)
+        {
+            messageDisplayBox.Text += "------------------------------------------------ [ HELP ] ------------------------------------------------\n";
+            messageDisplayBox.Text += "\n[*] To change nickname, double click on own name within Nickname List\n";
+            messageDisplayBox.Text += "\n[*] To direct message a person, either double click on their nick within Nickname list. Or prefix manually message with @nick [message]\n";
+            messageDisplayBox.Text += "\n[*] Type '!hangman' to start a game of hangman server wide, type your responses by prefixing it with '!'. For example: '!c' or '!word' \n";
+            messageDisplayBox.Text += "\n--------------------------------------------------------------------------------------------------------------";
+        }
+
         //
         ////  GAME RELATED
         //
@@ -193,5 +207,6 @@ namespace SimpleServer
         {
             return bombermanMonoControl1._characterList.FindIndex(cl => cl._id == id);
         }
+
     }
 }
