@@ -113,6 +113,7 @@ namespace SimpleServer
                 {
                     switch (packet.getPacketType())
                     {
+                        #region Chat Message
                         // Chat Meesage Packet Detected
                         case PacketType.CHATMESSAGE:
                             ChatMessagePacket chatPacket = packet as ChatMessagePacket;
@@ -211,13 +212,17 @@ namespace SimpleServer
                         }
                         break;
                         #endregion
+                        #endregion
 
+                        #region Nickname
                         // Nickname packet detected
                         case PacketType.NICKNAME:
                         client._nickname = (packet as NicknamePacket)._nickname;
                         UpdateClientsNicknameList();
                         break;
-                        
+                        #endregion
+
+                        #region Login
                         // UDP packet detected
                         case PacketType.LOGIN:
                             HandleLoginPacket(client, (LoginPacket)packet);
@@ -234,8 +239,10 @@ namespace SimpleServer
                                 client.SendPacketTCP(new StartGamePacket(true), client);
                             }
                             break;
+                        #endregion
 
-                            case PacketType.JOINGAME:
+                        #region Join Game
+                        case PacketType.JOINGAME:
                                 JoinGamePacket joinGamePacket = (JoinGamePacket)packet;
                                 _playersInGame.Add(joinGamePacket._id);
                                 foreach (Client fClient in _clients)
@@ -256,7 +263,9 @@ namespace SimpleServer
                                     }
                                 }
                                 break;
+                        #endregion
 
+                        #region Start Game
                         case PacketType.STARTGAME:
                             // Send character to everyone
                             foreach (Client fClient in _clients)
@@ -282,21 +291,9 @@ namespace SimpleServer
                             }
                             _isGameActive = true;
                             break;
+                        #endregion
 
-                        // Create requested character, and then send it to other users as well and give control to the client that requested character
-                        //case PacketType.CREATECHARACTER:
-                            //CreateCharacterPacket createCharacterPacket = (CreateCharacterPacket)packet;
-                            //_characters.Add(new Character(_count, createCharacterPacket._ColourR, createCharacterPacket._ColourG, createCharacterPacket._ColourB));
-                            //foreach (Client fClient in _clients)
-                            //{
-                            //    foreach (Character character in _characters)
-                            //    {
-                            //        client.SendPacketTCP(new CreateCharacterPacket(character._id ,character._ColourR, character._ColourG, character._ColourB), fClient);
-                            //    }
-                            //}
-                            //client.SendPacketTCP(new AssignCharacterPacket(), client);
-                            //break;
-
+                        #region Remove Character
                         case PacketType.REMOVECHARACTER:
                             RemoveCharacterPacket removeCharacterPacket = (RemoveCharacterPacket)packet;
                             int index = _characters.FindIndex(ch => ch._id == removeCharacterPacket._id);
@@ -308,8 +305,28 @@ namespace SimpleServer
                                     client.SendPacketTCP(removeCharacterPacket, cl);
                                 });
                             }
-                            break;
 
+                            // Check if just one play standing
+                            if (_characters.Count == 1)
+                            {
+                                _isGameActive = false;
+                                int winnerIndex = _clients.FindIndex(cl => cl._id == _characters[0]._id);
+                                foreach (Client fClient in _clients)
+                                {
+                                    // Notify clients of the winner
+                                    client.SendPacketTCP(new ChatMessagePacket("[SERVER] ", "Player: " + _clients[winnerIndex]._nickname + " won a game of bomberman!"), fClient);
+                                    // Restart clients games
+                                    client.SendPacketTCP(new RestartGamePacket(), fClient);
+                                }
+
+                                // Clear characters and active players
+                                _characters.Clear();
+                                _playersInGame.Clear();
+                            }
+                            break;
+                        #endregion
+
+                        #region SpawnBomb
                         case PacketType.SPAWNBOMB:
                             Console.WriteLine("BOMB SPAWNED");
                             _clients.ForEach(cl =>
@@ -320,6 +337,7 @@ namespace SimpleServer
                                 }
                             });
                             break;
+                        #endregion
 
                         default:
                             break;
@@ -354,7 +372,10 @@ namespace SimpleServer
 
             while (true)
             {
+                // Keep pinging nickname list to clients
                 client.UDPSend(new NicknamesListPacket(_clientsNicknames));
+
+                // Send server's character positions to clients
                 for (var i = 0; i < _characters.Count; i++)
                 {
                     client.UDPSend(new CharacterPositionPacket(_characters[i]._id, _characters[i]._PosX, _characters[i]._PosY, _characters[i]._direction));
@@ -382,7 +403,6 @@ namespace SimpleServer
                             {
                                 if (_characters[index]._PosX != characterPositionPacket._x || _characters[index]._PosY != characterPositionPacket._y)
                                 {
-                                    //Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
                                     _characters[index]._PosX = characterPositionPacket._x;
                                     _characters[index]._PosY = characterPositionPacket._y;
                                     _characters[index]._direction = characterPositionPacket._direction;

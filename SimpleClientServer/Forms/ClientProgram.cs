@@ -159,6 +159,12 @@ namespace SimpleServer
                         _messageForm.StartGame();
                         break;
 
+                    case PacketType.RESTARTGAME:
+                        _localCharactersIds.Clear();
+                        _localCharactersIds.Add(-1); // Init
+                        _messageForm.RestartGame();
+                        break;
+
                     case PacketType.CREATECHARACTER:
                         CreateCharacterPacket createCharacterPacket = (CreateCharacterPacket)packet;
 

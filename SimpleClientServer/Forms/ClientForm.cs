@@ -12,11 +12,13 @@ namespace SimpleServer
         delegate void UpdateGameJoinButtonDelegate(string nickname, int buttonID);
         delegate void UpdateGameStartButtonDelegate(bool state);
         delegate void StartGameDelegate();
+        delegate void RestartGameDelegate();
         UpdateChatWindowDelegate updateChatWindowDelegate;
         UpdateNicknamesListDelegate updateNicknamesDelegate;
         UpdateGameJoinButtonDelegate updateGameJoinButtonDelegate;
         UpdateGameStartButtonDelegate updateGameStartButtonDelegate;
         StartGameDelegate startGameDelegate;
+        RestartGameDelegate restartGameDelegate;
         SimpleClient client;
 
         public ClientForm(SimpleClient client)
@@ -28,6 +30,7 @@ namespace SimpleServer
             updateGameJoinButtonDelegate = new UpdateGameJoinButtonDelegate(UpdateJoinGameButton);
             updateGameStartButtonDelegate = new UpdateGameStartButtonDelegate(EnableStartGameButton);
             startGameDelegate = new StartGameDelegate(StartGame);
+            restartGameDelegate = new RestartGameDelegate(RestartGame);
             chatSendBox.Select();
         }
 
@@ -222,6 +225,36 @@ namespace SimpleServer
             {
                 GameLobbyPanel.Enabled = false;
                 GameLobbyPanel.Visible = false;
+            }
+        }
+
+        public void RestartGame()
+        {
+            if (GameLobbyPanel.InvokeRequired)
+            {
+                Invoke(restartGameDelegate);
+            }
+            else
+            {
+                // Clear local game characters
+                bombermanMonoControl1._characterList.Clear();
+
+                // Reset Buttons
+                JoinGameButton1.Text = "Join!";
+                JoinGameButton1.Enabled = true;
+                JoinGameButton2.Text = "Join!";
+                JoinGameButton2.Enabled = true;
+                JoinGameButton3.Text = "Join!";
+                JoinGameButton3.Enabled = true;
+                JoinGameButton4.Text = "Join!";
+                JoinGameButton4.Enabled = true;
+
+                // Reset Start Game Button
+                StartGameButton.Enabled = false;
+
+                // Re-open lobby panel
+                GameLobbyPanel.Enabled = true;
+                GameLobbyPanel.Visible = true;
             }
         }
 

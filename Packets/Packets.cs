@@ -15,6 +15,7 @@ namespace Packets
         JOINGAME,
         STARTGAMEBUTTON,
         STARTGAME,
+        RESTARTGAME,
         CHARACTERPOSITION,
         ASSIGNCHARACTER,
         CREATECHARACTER,
@@ -126,6 +127,15 @@ namespace Packets
         {
             _type = PacketType.STARTGAME;
             _startGame = state;
+        }
+    }
+
+    [Serializable]
+    public class RestartGamePacket : Packet
+    {
+        public RestartGamePacket()
+        {
+            _type = PacketType.RESTARTGAME;
         }
     }
 
