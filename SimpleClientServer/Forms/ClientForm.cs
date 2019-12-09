@@ -138,7 +138,7 @@ namespace SimpleServer
             messageDisplayBox.Text += "------------------------------------------------ [ HELP ] ------------------------------------------------\n";
             messageDisplayBox.Text += "\n[*] To change nickname, double click on own name within Nickname List\n";
             messageDisplayBox.Text += "\n[*] To direct message a person, either double click on their nick within Nickname list. Or prefix manually message with @nick [message]\n";
-            messageDisplayBox.Text += "\n[*] Type '!hangman' to start a game of hangman server wide, type your responses by prefixing it with '!'. For example: '!c' or '!word' \n";
+            messageDisplayBox.Text += "\n[*] Type '!hangman' to start a game of hangman server wide, type your responses by prefixing them with '!'. For example: '!c' or '!word' \n";
             messageDisplayBox.Text += "\n--------------------------------------------------------------------------------------------------------------";
         }
 

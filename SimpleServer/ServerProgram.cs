@@ -52,6 +52,7 @@ namespace SimpleServer
         List<int> _playersInGame;
         Hangman _hangmanGame;
         bool _isHangmanActive;
+        bool _isGameActive;
         int _count;
         List<Character> _characters;
 
@@ -62,6 +63,8 @@ namespace SimpleServer
             _iPAddress = IPAddress.Parse(ipAddress);
             _characters = new List<Character>();
             _playersInGame = new List<int>();
+            _isHangmanActive = false;
+            _isGameActive = false;
             _count = 0;
 
             try
@@ -218,6 +221,18 @@ namespace SimpleServer
                         // UDP packet detected
                         case PacketType.LOGIN:
                             HandleLoginPacket(client, (LoginPacket)packet);
+                            // If game is in-progress, synchronise newely connected player
+                            if (_isGameActive)
+                            {
+                                // Send over players characters
+                                foreach (int id in _playersInGame)
+                                {
+                                    int characterIndex = _characters.FindIndex(ch => ch._id == id);
+                                    client.SendPacketTCP(new CreateCharacterPacket(_characters[characterIndex]._id, _characters[characterIndex]._ColourR, _characters[characterIndex]._ColourG, _characters[characterIndex]._ColourB), client);
+                                }
+                                // Get off lobby screen
+                                client.SendPacketTCP(new StartGamePacket(true), client);
+                            }
                             break;
 
                             case PacketType.JOINGAME:
@@ -265,11 +280,11 @@ namespace SimpleServer
                             {
                                 client.SendPacketTCP(new StartGamePacket(true), fClient);
                             }
-
+                            _isGameActive = true;
                             break;
 
                         // Create requested character, and then send it to other users as well and give control to the client that requested character
-                        case PacketType.CREATECHARACTER:
+                        //case PacketType.CREATECHARACTER:
                             //CreateCharacterPacket createCharacterPacket = (CreateCharacterPacket)packet;
                             //_characters.Add(new Character(_count, createCharacterPacket._ColourR, createCharacterPacket._ColourG, createCharacterPacket._ColourB));
                             //foreach (Client fClient in _clients)
@@ -280,7 +295,7 @@ namespace SimpleServer
                             //    }
                             //}
                             //client.SendPacketTCP(new AssignCharacterPacket(), client);
-                            break;
+                            //break;
 
                         case PacketType.REMOVECHARACTER:
                             RemoveCharacterPacket removeCharacterPacket = (RemoveCharacterPacket)packet;
