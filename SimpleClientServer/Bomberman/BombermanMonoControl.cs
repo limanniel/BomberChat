@@ -24,12 +24,8 @@ namespace Bomberman
 
             for (var i = 0; i < _characterList.Count; i++)
             {
-                _characterList[i].Update(gameTime);
+                _characterList[i].Update(gameTime, Editor.graphics.Viewport.Width, Editor.graphics.Viewport.Height);
             }
-            //_characterList.ForEach(cl =>
-            //{
-            //    cl.Update(gameTime);
-            //});
 
             for (var i = 0; i < _bombList.Count; i++)
             {
@@ -44,7 +40,6 @@ namespace Bomberman
                     _bombList.RemoveAt(i);
                     continue;
                 }
-
                 _bombList[i].Update(gameTime);
             }
         }
@@ -55,10 +50,7 @@ namespace Bomberman
             {
                 _characterList[i].Draw(Editor.spriteBatch);
             }
-            //_characterList.ForEach(cl =>
-            //{
-            //    cl.Draw(Editor.spriteBatch);
-            //});
+
             _bombList.ForEach(bl =>
             {
                 bl.Draw(Editor.spriteBatch);

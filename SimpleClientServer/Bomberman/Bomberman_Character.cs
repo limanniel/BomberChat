@@ -27,30 +27,30 @@ namespace Bomberman
             _canSpawnBomb = true;
         }
 
-        public void Update(GameTime gameTime)
+        public void Update(GameTime gameTime, int windowWidth, int windowHeight)
         {
             KeyboardState kbState = Keyboard.GetState();
             if (_possessed)
             {
-                if (kbState.IsKeyDown(Keys.W))
+                if (kbState.IsKeyDown(Keys.W) && _position.Y > 0)
                 {
                     _position.Y -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
                     _animatedSprite.Update(gameTime, 1);
                     _direction = 1;
                 }
-                if (kbState.IsKeyDown(Keys.S))
+                if (kbState.IsKeyDown(Keys.S) && (_position.Y + 90 < windowHeight))
                 {
                     _position.Y += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
                     _animatedSprite.Update(gameTime, 0);
                     _direction = 0;
                 }
-                if (kbState.IsKeyDown(Keys.A))
+                if (kbState.IsKeyDown(Keys.A) && _position.X > 0)
                 {
                     _position.X -= (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
                     _animatedSprite.Update(gameTime, 3);
                     _direction = 3;
                 }
-                if (kbState.IsKeyDown(Keys.D))
+                if (kbState.IsKeyDown(Keys.D) && (_position.X + 52) < windowWidth)
                 {
                     _position.X += (float)gameTime.ElapsedGameTime.TotalMilliseconds * _CHARACTER_SPEED;
                     _animatedSprite.Update(gameTime, 2);
