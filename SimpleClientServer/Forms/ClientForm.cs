@@ -20,6 +20,7 @@ namespace SimpleServer
         StartGameDelegate startGameDelegate;
         RestartGameDelegate restartGameDelegate;
         SimpleClient client;
+        bool _joinedGame;
 
         public ClientForm(SimpleClient client)
         {
@@ -31,6 +32,7 @@ namespace SimpleServer
             updateGameStartButtonDelegate = new UpdateGameStartButtonDelegate(EnableStartGameButton);
             startGameDelegate = new StartGameDelegate(StartGame);
             restartGameDelegate = new RestartGameDelegate(RestartGame);
+            _joinedGame = false;
             chatSendBox.Select();
         }
 
@@ -147,21 +149,25 @@ namespace SimpleServer
 
         private void JoinGameButton1_MouseClick(object sender, MouseEventArgs e)
         {
+            _joinedGame = true;
             client.SendPacketTCP(new Packets.JoinGamePacket(client._playerId, client._nickname, 1));
         }
 
         private void JoinGameButton2_MouseClick(object sender, MouseEventArgs e)
         {
+            _joinedGame = true;
             client.SendPacketTCP(new Packets.JoinGamePacket(client._playerId, client._nickname, 2));
         }
 
         private void JoinGameButton3_Click(object sender, EventArgs e)
         {
+            _joinedGame = true;
             client.SendPacketTCP(new Packets.JoinGamePacket(client._playerId, client._nickname, 3));
         }
 
         private void JoinGameButton4_Click(object sender, EventArgs e)
         {
+            _joinedGame = true;
             client.SendPacketTCP(new Packets.JoinGamePacket(client._playerId, client._nickname, 4));
         }
 
@@ -194,6 +200,13 @@ namespace SimpleServer
 
                     default:
                         break;
+                }
+                if (_joinedGame)
+                {
+                    JoinGameButton1.Enabled = false;
+                    JoinGameButton2.Enabled = false;
+                    JoinGameButton3.Enabled = false;
+                    JoinGameButton4.Enabled = false;
                 }
             }    
         }
@@ -238,6 +251,7 @@ namespace SimpleServer
             {
                 // Clear local game characters
                 bombermanMonoControl1._characterList.Clear();
+                _joinedGame = false;
 
                 // Reset Buttons
                 JoinGameButton1.Text = "Join!";

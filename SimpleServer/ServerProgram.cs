@@ -216,8 +216,8 @@ namespace SimpleServer
                                         foreach (Client fClient in _clients)
                                         {
                                             client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n",  _hangmanGame.GetHangmanASCIIPicture()), fClient);
-                                            client.SendPacketTCP(new ChatMessagePacket("\n", _hangmanGame.GetObscuredWord() + "\n"), fClient);
-                                            client.SendPacketTCP(new ChatMessagePacket("\n", _hangmanGame._usedWords + "\n"), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n", _hangmanGame.GetObscuredWord()), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n[SERVER] ", _hangmanGame._usedWords + "\n"), fClient);
                                         }
                                     }
                                 }
