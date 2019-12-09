@@ -8,9 +8,9 @@ namespace Bomberman
     class Bomb
     {
         Texture2D _texture;
-        Vector2 _position;
         Rectangle _sourceRect;
         float _timer;
+        public Vector2 _position;
         public int _playerID { get; private set; }
         const float _TIME_TO_EXPLODE = 2.5f;
         public bool _remove { get; private set; }

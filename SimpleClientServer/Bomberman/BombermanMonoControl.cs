@@ -10,12 +10,14 @@ namespace Bomberman
     public class BombermanMonoControl : MonoGame.Forms.Controls.MonoGameControl
     {
         public List<Bomberman_Character> _characterList;
+        public List<int> _charactersToDelete;
         List<Bomb> _bombList;
 
         protected override void Initialize()
         {
             base.Initialize();
             _characterList = new List<Bomberman_Character>();
+            _charactersToDelete = new List<int>();
             _bombList = new List<Bomb>();
         }
         protected override void Update(GameTime gameTime)
@@ -36,6 +38,7 @@ namespace Bomberman
                     {
                         _characterList[index]._canSpawnBomb = true;
                     }
+                    ExplosionCheck(i);
 
                     _bombList.RemoveAt(i);
                     continue;
@@ -55,9 +58,6 @@ namespace Bomberman
             {
                 bl.Draw(Editor.spriteBatch);
             });
-
-            //Editor.spriteBatch.Begin();
-           // Editor.spriteBatch.End();
         }
 
         public void CreateCharacter(int id, int r, int g, int b)
@@ -66,7 +66,7 @@ namespace Bomberman
             _characterList.Add(new Bomberman_Character(Editor.Content, id, color));
         }
 
-        public void RemoveCharacet(int id)
+        public void RemoveCharacter(int id)
         {
             _characterList.RemoveAt(id);
         }
@@ -80,6 +80,20 @@ namespace Bomberman
         {
             Vector2 position = new Vector2(posX, posY);
             _bombList.Add(new Bomb(Editor.Content, position, id));
+        }
+
+        public void ExplosionCheck(int bombID)
+        {
+            Rectangle bombRect = new Rectangle((int)_bombList[bombID]._position.X, (int)_bombList[bombID]._position.Y, 64, 64);
+            _characterList.ForEach(cl =>
+            {
+                Rectangle characterRect = new Rectangle((int)cl._position.X, (int)cl._position.Y, 52, 90);
+                if (bombRect.Intersects(characterRect))
+                {
+                    Console.WriteLine("Character: " + cl._id + " exploded!");
+                    _charactersToDelete.Add(cl._id);
+                }     
+            });
         }
     }
 }
