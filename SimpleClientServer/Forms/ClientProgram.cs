@@ -109,9 +109,6 @@ namespace SimpleServer
             SendPacketTCP(new LoginPacket(_udpClient.Client.LocalEndPoint, _playerId));
             // Send initial nickname of the client
             SendPacketTCP(new NicknamePacket(_nickname));
-            // Send that you'd like an character
-            Random random = new Random();
-            SendPacketTCP(new CreateCharacterPacket(_playerId, random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
         }
 
         void ProcessServerResponseTCP()
@@ -122,19 +119,26 @@ namespace SimpleServer
             {
                 switch (packet.getPacketType())
                 {
+                    #region Chat Message
                     case PacketType.CHATMESSAGE:
                         ChatMessagePacket chatMessagePacket = (ChatMessagePacket)packet;
                         _messageForm.UpdateChatWindow(chatMessagePacket._nickname, chatMessagePacket._message);
                         break;
+                    #endregion
 
+                    #region Direct Message
                     case PacketType.DIRECTMESSAGE:
                         DirectMessagePacket directMessagePacket = (DirectMessagePacket)packet;
                         _messageForm.UpdateChatWindow(directMessagePacket._receiver, directMessagePacket._message);
                         break;
+                    #endregion
 
+                    #region Nickname
                     case PacketType.NICKNAME:
                         break;
+                    #endregion
 
+                    #region Login
                     case PacketType.LOGIN:
                         LoginPacket loginPacket = (LoginPacket)packet;
                         _playerId = loginPacket._id;
@@ -143,7 +147,37 @@ namespace SimpleServer
                         _udpReaderThread.Start();
                         Console.WriteLine("UDP CONNECTED!");
                         break;
+                    #endregion
 
+                    #region Join Game
+                    case PacketType.JOINGAME:
+                        JoinGamePacket joinGamePacket = (JoinGamePacket)packet;
+                        _messageForm.UpdateJoinGameButton(joinGamePacket._nickname, joinGamePacket._buttonID);
+                        break;
+                    #endregion
+
+                    #region Start Game Button
+                    case PacketType.STARTGAMEBUTTON:
+                        StartGameButtonPacket startGamePacket = (StartGameButtonPacket)packet;
+                        _messageForm.EnableStartGameButton(startGamePacket._canStartGame);
+                        break;
+                    #endregion
+
+                    #region Start Game
+                    case PacketType.STARTGAME:
+                        _messageForm.StartGame();
+                        break;
+                    #endregion
+
+                    #region Restart Game
+                    case PacketType.RESTARTGAME:
+                        _localCharactersIds.Clear();
+                        _localCharactersIds.Add(-1); // Init
+                        _messageForm.RestartGame();
+                        break;
+                    #endregion
+
+                    #region Create Character
                     case PacketType.CREATECHARACTER:
                         CreateCharacterPacket createCharacterPacket = (CreateCharacterPacket)packet;
 
@@ -165,13 +199,17 @@ namespace SimpleServer
 
                         }
                         break;
+                    #endregion
 
+                    #region Spawn Bomb
                     case PacketType.SPAWNBOMB:
                         SpawnBombPacket spawnBombPacket = (SpawnBombPacket)packet;
                         Console.WriteLine("CLIENT: RETRIEVED BOMB LOCATION");
                         _messageForm.SpawnBomb(spawnBombPacket._posX, spawnBombPacket._posY, spawnBombPacket._id);
                         break;
+                    #endregion
 
+                    #region Remove Character
                     case PacketType.REMOVECHARACTER:
                         RemoveCharacterPacket removeCharacterPacket = (RemoveCharacterPacket)packet;
                         int index = _localCharactersIds.FindIndex(lc => lc == removeCharacterPacket._id);
@@ -181,11 +219,14 @@ namespace SimpleServer
                         }
                         _messageForm.RemoveCharacter(removeCharacterPacket._id);
                         break;
-                    
+                    #endregion
+
+                    #region Assign Character
                     // Possess own character
                     case PacketType.ASSIGNCHARACTER:
                         _messageForm.AssignCharacter(_playerId);
                         break;
+                    #endregion
 
                     default:
                         break;
