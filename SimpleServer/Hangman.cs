@@ -72,6 +72,7 @@ namespace SimpleServer
             "exodus", "banjo", "crypt", "jukebox", "beekeeper", "matrix", "buffalo", "stronghold",
             "rhubarb", "galaxy", "zombie", "portal", "wyvern", "dragon", "dungeon", "bookworm"
         };
+        public string _usedWords = "Used Letters: ";
 
         public Hangman()
         {
@@ -126,6 +127,10 @@ namespace SimpleServer
             // Message doesn't contain letter sent by client
             else
             {
+                if (clientMessage.Length == 1)
+                {
+                    _usedWords += "[ " + clientMessage + " ]";
+                }
                 _countOfTries++;
                 // Maximum amount of tries reached
                 if (_countOfTries == 7)

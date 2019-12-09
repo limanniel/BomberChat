@@ -217,6 +217,7 @@ namespace SimpleServer
                                         {
                                             client.SendPacketTCP(new ChatMessagePacket("\n[SERVER]  \n",  _hangmanGame.GetHangmanASCIIPicture()), fClient);
                                             client.SendPacketTCP(new ChatMessagePacket("\n", _hangmanGame.GetObscuredWord() + "\n"), fClient);
+                                            client.SendPacketTCP(new ChatMessagePacket("\n", _hangmanGame._usedWords + "\n"), fClient);
                                         }
                                     }
                                 }
