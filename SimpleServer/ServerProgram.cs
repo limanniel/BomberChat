@@ -113,7 +113,9 @@ namespace SimpleServer
                         ChatMessagePacket chatPacket = packet as ChatMessagePacket;
 
                         // Direct message
-                        if (chatPacket._message[0] == '@') 
+                        if (chatPacket._message.Length != 0)
+                        {
+                            if (chatPacket._message[0] == '@')
                             {
                                 string receiver = chatPacket._message.Substring(0, chatPacket._message.IndexOf(' ')); // Extract receipent
                                 string message = chatPacket._message.Substring(chatPacket._message.IndexOf(' ') + 1, (chatPacket._message.Length - receiver.Length) - 1); // Extract Message
@@ -130,6 +132,7 @@ namespace SimpleServer
                                 }
                                 break;
                             }
+                        }
 
                         // Normal Message
                         switch (chatPacket._message)

@@ -82,19 +82,35 @@ namespace SimpleServer
 
         private void SendMessageButton_Click(object sender, EventArgs e)
         {
-            client.SendMessage(chatSendBox.Text);
-            chatSendBox.Clear();
+            // Don't allow empty messages to be sent over as well as ones starting with whitespaces
+            if (chatSendBox.Text.Length != 0 && !chatSendBox.Text.StartsWith(" "))
+            {
+                client.SendMessage(chatSendBox.Text);
+                chatSendBox.Clear();
+            }
             chatSendBox.Focus();
         }
 
-        private void NicknamesList_MouseDown(object sender, MouseEventArgs e)
+        private void NicknamesList_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             try
             {
-                if (client._nickname == NicknamesList.SelectedItem.ToString() && e.Clicks == 2)
+                // Double clicked own nick -> pop-up window to change it
+                if (client._nickname == NicknamesList.SelectedItem.ToString())
                 {
                     client._nicknameForm.ShowDialog();
                     client.SendPacketTCP(new Packets.NicknamePacket(client._nickname));
+                }
+                // Double clicked else -> fill chat with prefix to send DM
+                else
+                {
+                    chatSendBox.Clear();
+                    chatSendBox.Text += "@";
+                    chatSendBox.Text += NicknamesList.SelectedItem.ToString();
+                    chatSendBox.Text += "  ";
+                    chatSendBox.Select(chatSendBox.Text.Length - 1, 0);
+                    chatSendBox.ScrollToCaret();
+                    chatSendBox.Focus();
                 }
             }
             catch (NullReferenceException)
