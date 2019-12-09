@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows.Forms;
 
 namespace SimpleServer
@@ -172,7 +173,7 @@ namespace SimpleServer
             int index = CharacterIDToIndex(id);
             if (index != -1)
             {
-                bombermanMonoControl1.RemoveCharacet(index);
+                bombermanMonoControl1.RemoveCharacter(index);
             }
         }
 
@@ -191,11 +192,6 @@ namespace SimpleServer
                     }
                 }
             }
-
-            if (e.KeyCode == Keys.E)
-            {
-                client.SendPacketTCP(new Packets.RemoveCharacterPacket(client._playerId));
-            }
         }
 
         public void SpawnBomb(float posX, float posY, int playerID)
@@ -206,6 +202,29 @@ namespace SimpleServer
         public int CharacterIDToIndex(int id)
         {
             return bombermanMonoControl1._characterList.FindIndex(cl => cl._id == id);
+        }
+
+        public bool CheckIfThereAreCharactersToDelete()
+        {
+            // List empty
+            if (!bombermanMonoControl1._charactersToDelete.Any())
+            {
+                return false;
+            }
+            // Contains Characters waiting to be deleted
+            else
+            {
+                return true;
+            }
+        }
+
+        public void DeleteCharacters()
+        {
+            bombermanMonoControl1._charactersToDelete.ToList().ForEach(ctd =>
+            {
+                client.SendPacketTCP(new Packets.RemoveCharacterPacket(ctd));
+                bombermanMonoControl1._charactersToDelete.Remove(ctd);
+            });
         }
 
     }

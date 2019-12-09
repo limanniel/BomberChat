@@ -231,6 +231,11 @@ namespace SimpleServer
         {
             while (_udpClient.Client.Connected)
             {
+                if (_messageForm.CheckIfThereAreCharactersToDelete())
+                {
+                    _messageForm.DeleteCharacters();
+                }
+
                 try
                 {
                     if (_localCharactersIds.Contains(_playerId))
