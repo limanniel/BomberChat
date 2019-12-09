@@ -232,18 +232,29 @@ namespace SimpleServer
                         _count++;
                         break;
 
-                        case PacketType.REMOVECHARACTER:
-                            RemoveCharacterPacket removeCharacterPacket = (RemoveCharacterPacket)packet;
-                            int index = _characters.FindIndex(ch => ch._id == removeCharacterPacket._id);
-                            if (index != -1)
+                    case PacketType.REMOVECHARACTER:
+                        RemoveCharacterPacket removeCharacterPacket = (RemoveCharacterPacket)packet;
+                        int index = _characters.FindIndex(ch => ch._id == removeCharacterPacket._id);
+                        if (index != -1)
+                        {
+                            _characters.RemoveAt(index);
+                            _clients.ForEach(cl =>
                             {
-                                _characters.RemoveAt(index);
-                                _clients.ForEach(cl =>
-                                {
-                                    client.SendPacketTCP(removeCharacterPacket, cl);
-                                });
+                                client.SendPacketTCP(removeCharacterPacket, cl);
+                            });
+                        }
+                        break;
+
+                    case PacketType.SPAWNBOMB:
+                        Console.WriteLine("BOMB SPAWNED");
+                        _clients.ForEach(cl =>
+                        {
+                            if (cl != client)
+                            {
+                                cl.SendPacketTCP(packet, cl);
                             }
-                            break;
+                        });
+                        break;
 
                     default:
                         break;
@@ -284,7 +295,6 @@ namespace SimpleServer
                 
                 Thread.Sleep(10);
             }
-
         }
 
         private void UDPClientReadMethod(object clientObj)
@@ -310,21 +320,8 @@ namespace SimpleServer
                                     _characters[index]._PosY = characterPositionPacket._y;
                                     _characters[index]._direction = characterPositionPacket._direction;
                                 }
-
                             });
                         }
-                        break;
-
-                    case PacketType.SPAWNBOMB:
-                        Console.WriteLine("BOMB SPAWNED");
-                        _clients.ForEach(cl =>
-                        {
-                            if (cl != client)
-                            {
-                                cl.UDPSend(packet);
-                            }
-                        });
-                        //client.UDPSend(packet);
                         break;
 
                     default:

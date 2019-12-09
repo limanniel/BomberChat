@@ -166,6 +166,12 @@ namespace SimpleServer
                         }
                         break;
 
+                    case PacketType.SPAWNBOMB:
+                        SpawnBombPacket spawnBombPacket = (SpawnBombPacket)packet;
+                        Console.WriteLine("CLIENT: RETRIEVED BOMB LOCATION");
+                        _messageForm.SpawnBomb(spawnBombPacket._posX, spawnBombPacket._posY, spawnBombPacket._id);
+                        break;
+
                     case PacketType.REMOVECHARACTER:
                         RemoveCharacterPacket removeCharacterPacket = (RemoveCharacterPacket)packet;
                         int index = _localCharactersIds.FindIndex(lc => lc == removeCharacterPacket._id);
@@ -211,12 +217,6 @@ namespace SimpleServer
                             CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
                             //Console.WriteLine("Character position packet!: " + characterPositionPacket._x + " " + characterPositionPacket._y);
                             _messageForm.UpdateCharacterPosition(characterPositionPacket._id, characterPositionPacket._x, characterPositionPacket._y, characterPositionPacket._direction);
-                            break;
-
-                        case PacketType.SPAWNBOMB:
-                            SpawnBombPacket spawnBombPacket = (SpawnBombPacket)packet;
-                            Console.WriteLine("CLIENT: RETRIEVED BOMB LOCATION");
-                            _messageForm.SpawnBomb(spawnBombPacket._posX, spawnBombPacket._posY, spawnBombPacket._id);
                             break;
 
                         default:

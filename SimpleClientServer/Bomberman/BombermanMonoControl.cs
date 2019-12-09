@@ -36,6 +36,7 @@ namespace Bomberman
                     {
                         _characterList[index]._canSpawnBomb = true;
                     }
+                    ExplosionCheck(i);
 
                     _bombList.RemoveAt(i);
                     continue;
@@ -80,6 +81,17 @@ namespace Bomberman
         {
             Vector2 position = new Vector2(posX, posY);
             _bombList.Add(new Bomb(Editor.Content, position, id));
+        }
+
+        public void ExplosionCheck(int bombID)
+        {
+            Rectangle bombRect = new Rectangle((int)_bombList[bombID]._position.X, (int)_bombList[bombID]._position.Y, 64, 64);
+            _characterList.ForEach(cl =>
+            {
+                Rectangle characterRect = new Rectangle((int)cl._position.X, (int)cl._position.Y, 52, 90);
+                if (bombRect.Intersects(characterRect))
+                    Console.WriteLine("Character: " + cl._id + " exploded!");
+            });
         }
     }
 }

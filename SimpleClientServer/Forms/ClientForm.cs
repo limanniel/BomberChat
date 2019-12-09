@@ -173,7 +173,7 @@ namespace SimpleServer
                     {
                         bombermanMonoControl1.SpawnBomb(bombermanMonoControl1._characterList[index]._position, client._playerId);
                         bombermanMonoControl1._characterList[index]._canSpawnBomb = false;
-                        client.SendPacketUDP(new Packets.SpawnBombPacket(bombermanMonoControl1._characterList[index]._position.X, bombermanMonoControl1._characterList[index]._position.Y, client._playerId));
+                        client.SendPacketTCP(new Packets.SpawnBombPacket(bombermanMonoControl1._characterList[index]._position.X, bombermanMonoControl1._characterList[index]._position.Y, client._playerId));
                     }
                 }
             }
