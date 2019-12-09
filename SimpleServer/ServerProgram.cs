@@ -32,6 +32,19 @@ namespace SimpleServer
         }
     }
 
+    class ActivePlayer
+    {
+        public int _id { get; set; }
+        public string _nickname { get; set; }
+        public int _buttonID { get; set; }
+        public ActivePlayer(int id, string nickname, int buttonID)
+        {
+            _id = id;
+            _nickname = nickname;
+            _buttonID = buttonID;
+        }
+    }
+
     class ServerProgram
     {
         static void Main(string[] args)
@@ -49,7 +62,7 @@ namespace SimpleServer
         IPAddress _iPAddress;
         List<Client> _clients;
         List<string> _clientsNicknames;
-        List<int> _playersInGame;
+        List<ActivePlayer> _playersInGame;
         Hangman _hangmanGame;
         bool _isHangmanActive;
         bool _isGameActive;
@@ -62,7 +75,7 @@ namespace SimpleServer
             _clientsNicknames = new List<string>();
             _iPAddress = IPAddress.Parse(ipAddress);
             _characters = new List<Character>();
-            _playersInGame = new List<int>();
+            _playersInGame = new List<ActivePlayer>();
             _isHangmanActive = false;
             _isGameActive = false;
             _count = 0;
@@ -230,13 +243,20 @@ namespace SimpleServer
                             if (_isGameActive)
                             {
                                 // Send over players characters
-                                foreach (int id in _playersInGame)
+                                foreach (ActivePlayer activePlayer in _playersInGame)
                                 {
-                                    int characterIndex = _characters.FindIndex(ch => ch._id == id);
+                                    int characterIndex = _characters.FindIndex(ch => ch._id == activePlayer._id);
                                     client.SendPacketTCP(new CreateCharacterPacket(_characters[characterIndex]._id, _characters[characterIndex]._ColourR, _characters[characterIndex]._ColourG, _characters[characterIndex]._ColourB), client);
                                 }
                                 // Get off lobby screen
                                 client.SendPacketTCP(new StartGamePacket(true), client);
+                            }
+                            if (_playersInGame.Count > 0)
+                            {
+                                foreach (ActivePlayer activePlayer in _playersInGame)
+                                {
+                                    client.SendPacketTCP(new JoinGamePacket(activePlayer._id, activePlayer._nickname, activePlayer._buttonID), client);
+                                }
                             }
                             break;
                         #endregion
@@ -244,7 +264,7 @@ namespace SimpleServer
                         #region Join Game
                         case PacketType.JOINGAME:
                                 JoinGamePacket joinGamePacket = (JoinGamePacket)packet;
-                                _playersInGame.Add(joinGamePacket._id);
+                                _playersInGame.Add(new ActivePlayer(joinGamePacket._id, joinGamePacket._nickname, joinGamePacket._buttonID));
                                 foreach (Client fClient in _clients)
                                 {
                                     client.SendPacketTCP(joinGamePacket, fClient);
@@ -256,9 +276,9 @@ namespace SimpleServer
                                 // Check if enough players to start game
                                 if (_playersInGame.Count >= 2)
                                 {
-                                    foreach (int id in _playersInGame)
+                                    foreach (ActivePlayer activePlayer in _playersInGame)
                                     {
-                                        int playerIndex = _playersInGame.Find(pg => pg == id);
+                                        int playerIndex = _playersInGame.FindIndex(pg => pg._id == activePlayer._id);
                                         client.SendPacketTCP(new StartGameButtonPacket(true), _clients[playerIndex]);
                                     }
                                 }
@@ -270,18 +290,18 @@ namespace SimpleServer
                             // Send character to everyone
                             foreach (Client fClient in _clients)
                             {
-                                foreach (int id in _playersInGame)
+                                foreach (ActivePlayer activePlayer in _playersInGame)
                                 {
-                                    int characterIndex = _characters.FindIndex(ch => ch._id == id);
+                                    int characterIndex = _characters.FindIndex(ch => ch._id == activePlayer._id);
                                     client.SendPacketTCP(new CreateCharacterPacket(_characters[characterIndex]._id, _characters[characterIndex]._ColourR, _characters[characterIndex]._ColourG, _characters[characterIndex]._ColourB), fClient);
                                 }
                             }
 
                             // Let participating players possess their characters
-                            foreach (int id in _playersInGame)
+                            foreach (ActivePlayer activePlayer in _playersInGame)
                             {
-                                int playerIndex = _playersInGame.Find(pg => pg == id);
-                                client.SendPacketTCP(new AssignCharacterPacket(id), _clients[playerIndex]);
+                                int playerIndex = _playersInGame.FindIndex(pg => pg._id == activePlayer._id);
+                                client.SendPacketTCP(new AssignCharacterPacket(activePlayer._id), _clients[playerIndex]);
                             }
 
                             // Start the game for everyone
