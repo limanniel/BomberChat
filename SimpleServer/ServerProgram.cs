@@ -113,16 +113,18 @@ namespace SimpleServer
                         ChatMessagePacket chatPacket = packet as ChatMessagePacket;
 
                         // Direct message
-                        if (chatPacket._message[0] == '@') 
+                        if (chatPacket._message.Length != 0)
+                        {
+                            if (chatPacket._message[0] == '@')
                             {
                                 string receiver = chatPacket._message.Substring(0, chatPacket._message.IndexOf(' ')); // Extract receipent
                                 string message = chatPacket._message.Substring(chatPacket._message.IndexOf(' ') + 1, (chatPacket._message.Length - receiver.Length) - 1); // Extract Message
                                 receiver = receiver.Remove(0, 1); // Remove @ prefix
-                                int index = _clients.FindIndex(cl => cl._nickname == receiver); // Check if receipent is on the server
+                                int indexes = _clients.FindIndex(cl => cl._nickname == receiver); // Check if receipent is on the server
 
-                                if (index != -1)
+                                if (indexes != -1)
                                 {
-                                    _clients[index].SendPacketTCP(new DirectMessagePacket("[DIRECT MESSAGE] " + client._nickname, message), _clients[index]);
+                                    _clients[indexes].SendPacketTCP(new DirectMessagePacket("[DIRECT MESSAGE] " + client._nickname, message), _clients[indexes]);
                                 }
                                 else
                                 {
@@ -130,6 +132,7 @@ namespace SimpleServer
                                 }
                                 break;
                             }
+                        }
 
                         // Normal Message
                         switch (chatPacket._message)
@@ -229,6 +232,19 @@ namespace SimpleServer
                         _count++;
                         break;
 
+                        case PacketType.REMOVECHARACTER:
+                            RemoveCharacterPacket removeCharacterPacket = (RemoveCharacterPacket)packet;
+                            int index = _characters.FindIndex(ch => ch._id == removeCharacterPacket._id);
+                            if (index != -1)
+                            {
+                                _characters.RemoveAt(index);
+                                _clients.ForEach(cl =>
+                                {
+                                    client.SendPacketTCP(removeCharacterPacket, cl);
+                                });
+                            }
+                            break;
+
                     default:
                         break;
                     }
@@ -263,7 +279,7 @@ namespace SimpleServer
                 client.UDPSend(new NicknamesListPacket(_clientsNicknames));
                 for (var i = 0; i < _characters.Count; i++)
                 {
-                    client.UDPSend(new CharacterPositionPacket(i, _characters[i]._PosX, _characters[i]._PosY, _characters[i]._direction));
+                    client.UDPSend(new CharacterPositionPacket(_characters[i]._id, _characters[i]._PosX, _characters[i]._PosY, _characters[i]._direction));
                 }
                 
                 Thread.Sleep(10);
@@ -282,17 +298,21 @@ namespace SimpleServer
                 {
                     case PacketType.CHARACTERPOSITION:
                         CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
-                        _clients.ForEach(cl => 
+                        int index = _characters.FindIndex(ch => ch._id == characterPositionPacket._id);
+                        if (index != -1)
                         {
-                            if (_characters[characterPositionPacket._id]._PosX != characterPositionPacket._x || _characters[characterPositionPacket._id]._PosY != characterPositionPacket._y)
+                            _clients.ForEach(cl => 
                             {
-                                //Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
-                                _characters[characterPositionPacket._id]._PosX = characterPositionPacket._x;
-                                _characters[characterPositionPacket._id]._PosY = characterPositionPacket._y;
-                                _characters[characterPositionPacket._id]._direction = characterPositionPacket._direction;
-                            }
+                                if (_characters[index]._PosX != characterPositionPacket._x || _characters[index]._PosY != characterPositionPacket._y)
+                                {
+                                    //Console.WriteLine(cl._nickname + " X: " + characterPositionPacket._x + " Y: " + characterPositionPacket._y);
+                                    _characters[index]._PosX = characterPositionPacket._x;
+                                    _characters[index]._PosY = characterPositionPacket._y;
+                                    _characters[index]._direction = characterPositionPacket._direction;
+                                }
 
-                        });
+                            });
+                        }
                         break;
 
                     case PacketType.SPAWNBOMB:

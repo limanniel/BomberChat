@@ -55,7 +55,7 @@ namespace SimpleServer
         {
             _nicknamesList = new List<string>();
             _localCharactersIds = new List<int>();
-            _localCharactersIds.Add(-1); // Init list with one value
+            _localCharactersIds.Add(-1); // Init list with default value so can be evaluated
             _messageForm = new ClientForm(this);
             _nicknameForm = new SetNicknameForm(this);
             _playerId = 0;
@@ -111,7 +111,7 @@ namespace SimpleServer
             SendPacketTCP(new NicknamePacket(_nickname));
             // Send that you'd like an character
             Random random = new Random();
-            SendPacketTCP(new CreateCharacterPacket(_playerId ,random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
+            SendPacketTCP(new CreateCharacterPacket(_playerId, random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
         }
 
         void ProcessServerResponseTCP()
@@ -152,8 +152,8 @@ namespace SimpleServer
                         {
                             if (!_localCharactersIds.Contains(createCharacterPacket._id))
                             {
-                                _messageForm.CreateCharacter(createCharacterPacket._ColourR, createCharacterPacket._ColourG, createCharacterPacket._ColourB);
                                 _localCharactersIds.Add(createCharacterPacket._id);
+                                _messageForm.CreateCharacter(createCharacterPacket._id, createCharacterPacket._ColourR, createCharacterPacket._ColourG, createCharacterPacket._ColourB);
                             }
                         }
 
@@ -164,6 +164,16 @@ namespace SimpleServer
                             _udpWriterThread.Start();
 
                         }
+                        break;
+
+                    case PacketType.REMOVECHARACTER:
+                        RemoveCharacterPacket removeCharacterPacket = (RemoveCharacterPacket)packet;
+                        int index = _localCharactersIds.FindIndex(lc => lc == removeCharacterPacket._id);
+                        if (index != -1)
+                        {
+                            _localCharactersIds.RemoveAt(index);
+                        }
+                        _messageForm.RemoveCharacter(removeCharacterPacket._id);
                         break;
                     
                     // Possess own character
@@ -221,10 +231,21 @@ namespace SimpleServer
         {
             while (_udpClient.Client.Connected)
             {
-                //Keep Sending Character Position
-                if (_messageForm.bombermanMonoControl1._characterList[_playerId]._isMoving)
+                try
                 {
-                    SendPacketUDP(new CharacterPositionPacket(_playerId, _messageForm.bombermanMonoControl1._characterList[_playerId]._position.X, _messageForm.bombermanMonoControl1._characterList[_playerId]._position.Y, _messageForm.bombermanMonoControl1._characterList[_playerId]._direction));
+                    if (_localCharactersIds.Contains(_playerId))
+                    {
+                        int index = _messageForm.bombermanMonoControl1._characterList.FindIndex(cl => cl._id == _playerId);
+                        //Keep Sending Character Position
+                        if (_messageForm.bombermanMonoControl1._characterList[index]._isMoving)
+                        {
+                            SendPacketUDP(new CharacterPositionPacket(_playerId, _messageForm.bombermanMonoControl1._characterList[index]._position.X, _messageForm.bombermanMonoControl1._characterList[index]._position.Y, _messageForm.bombermanMonoControl1._characterList[index]._direction));
+                        }
+                    }
+                }
+                catch
+                {
+
                 }
             }
         }

@@ -38,18 +38,21 @@ namespace SimpleServer
             // 
             // messageDisplayBox
             // 
+            this.messageDisplayBox.BackColor = System.Drawing.Color.LightSteelBlue;
             this.messageDisplayBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.messageDisplayBox.Location = new System.Drawing.Point(12, 12);
             this.messageDisplayBox.MaxLength = 255;
             this.messageDisplayBox.Name = "messageDisplayBox";
             this.messageDisplayBox.ReadOnly = true;
-            this.messageDisplayBox.Size = new System.Drawing.Size(556, 353);
+            this.messageDisplayBox.Size = new System.Drawing.Size(556, 490);
             this.messageDisplayBox.TabIndex = 0;
             this.messageDisplayBox.Text = "";
             // 
             // chatSendBox
             // 
-            this.chatSendBox.Location = new System.Drawing.Point(12, 388);
+            this.chatSendBox.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.chatSendBox.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.chatSendBox.Location = new System.Drawing.Point(12, 538);
             this.chatSendBox.Name = "chatSendBox";
             this.chatSendBox.Size = new System.Drawing.Size(657, 37);
             this.chatSendBox.TabIndex = 1;
@@ -57,30 +60,33 @@ namespace SimpleServer
             // 
             // sendMessageButton
             // 
-            this.sendMessageButton.Location = new System.Drawing.Point(685, 388);
+            this.sendMessageButton.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.sendMessageButton.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.sendMessageButton.Location = new System.Drawing.Point(685, 538);
             this.sendMessageButton.Name = "sendMessageButton";
             this.sendMessageButton.Size = new System.Drawing.Size(103, 37);
             this.sendMessageButton.TabIndex = 2;
             this.sendMessageButton.Text = "Send";
-            this.sendMessageButton.UseVisualStyleBackColor = true;
+            this.sendMessageButton.UseVisualStyleBackColor = false;
             this.sendMessageButton.Click += new System.EventHandler(this.SendMessageButton_Click);
             // 
             // NicknamesList
             // 
+            this.NicknamesList.BackColor = System.Drawing.Color.LightSteelBlue;
             this.NicknamesList.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.NicknamesList.FormattingEnabled = true;
             this.NicknamesList.ItemHeight = 20;
-            this.NicknamesList.Location = new System.Drawing.Point(578, 38);
+            this.NicknamesList.Location = new System.Drawing.Point(587, 38);
             this.NicknamesList.Name = "NicknamesList";
-            this.NicknamesList.Size = new System.Drawing.Size(210, 324);
+            this.NicknamesList.Size = new System.Drawing.Size(201, 464);
             this.NicknamesList.TabIndex = 3;
-            this.NicknamesList.MouseDown += new System.Windows.Forms.MouseEventHandler(this.NicknamesList_MouseDown);
+            this.NicknamesList.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.NicknamesList_MouseDoubleClick);
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(574, 10);
+            this.label1.Location = new System.Drawing.Point(583, 12);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(110, 20);
             this.label1.TabIndex = 4;
@@ -88,10 +94,10 @@ namespace SimpleServer
             // 
             // bombermanMonoControl1
             // 
-            this.bombermanMonoControl1.Location = new System.Drawing.Point(805, 12);
+            this.bombermanMonoControl1.Location = new System.Drawing.Point(805, 4);
             this.bombermanMonoControl1.MouseHoverUpdatesOnly = false;
             this.bombermanMonoControl1.Name = "bombermanMonoControl1";
-            this.bombermanMonoControl1.Size = new System.Drawing.Size(932, 719);
+            this.bombermanMonoControl1.Size = new System.Drawing.Size(756, 606);
             this.bombermanMonoControl1.TabIndex = 5;
             this.bombermanMonoControl1.Text = "bombermanMonoControl1";
             this.bombermanMonoControl1.KeyDown += new System.Windows.Forms.KeyEventHandler(this.bombermanMonoControl1_KeyDown);
@@ -101,7 +107,9 @@ namespace SimpleServer
             this.AcceptButton = this.sendMessageButton;
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1749, 743);
+            this.AutoSize = true;
+            this.BackColor = System.Drawing.Color.CornflowerBlue;
+            this.ClientSize = new System.Drawing.Size(1560, 608);
             this.Controls.Add(this.bombermanMonoControl1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.NicknamesList);

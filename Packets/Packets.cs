@@ -15,6 +15,7 @@ namespace Packets
         CHARACTERPOSITION,
         ASSIGNCHARACTER,
         CREATECHARACTER,
+        REMOVECHARACTER,
         SPAWNBOMB
     }
 
@@ -125,6 +126,17 @@ namespace Packets
             _ColourR = r;
             _ColourG = g;
             _ColourB = b;
+        }
+    }
+
+    [Serializable]
+    public class RemoveCharacterPacket : Packet
+    {
+        public int _id;
+        public RemoveCharacterPacket(int id)
+        {
+            _type = PacketType.REMOVECHARACTER;
+            _id = id;
         }
     }
 

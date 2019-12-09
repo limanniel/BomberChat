@@ -82,19 +82,35 @@ namespace SimpleServer
 
         private void SendMessageButton_Click(object sender, EventArgs e)
         {
-            client.SendMessage(chatSendBox.Text);
-            chatSendBox.Clear();
+            // Don't allow empty messages to be sent over as well as ones starting with whitespaces
+            if (chatSendBox.Text.Length != 0 && !chatSendBox.Text.StartsWith(" "))
+            {
+                client.SendMessage(chatSendBox.Text);
+                chatSendBox.Clear();
+            }
             chatSendBox.Focus();
         }
 
-        private void NicknamesList_MouseDown(object sender, MouseEventArgs e)
+        private void NicknamesList_MouseDoubleClick(object sender, MouseEventArgs e)
         {
             try
             {
-                if (client._nickname == NicknamesList.SelectedItem.ToString() && e.Clicks == 2)
+                // Double clicked own nick -> pop-up window to change it
+                if (client._nickname == NicknamesList.SelectedItem.ToString())
                 {
                     client._nicknameForm.ShowDialog();
                     client.SendPacketTCP(new Packets.NicknamePacket(client._nickname));
+                }
+                // Double clicked else -> fill chat with prefix to send DM
+                else
+                {
+                    chatSendBox.Clear();
+                    chatSendBox.Text += "@";
+                    chatSendBox.Text += NicknamesList.SelectedItem.ToString();
+                    chatSendBox.Text += "  ";
+                    chatSendBox.Select(chatSendBox.Text.Length - 1, 0);
+                    chatSendBox.ScrollToCaret();
+                    chatSendBox.Focus();
                 }
             }
             catch (NullReferenceException)
@@ -110,41 +126,72 @@ namespace SimpleServer
         {
             if (client._playerId != id)
             {
-                if (bombermanMonoControl1._characterList[id]._position.X != x || bombermanMonoControl1._characterList[id]._position.Y != y)
+                int index = bombermanMonoControl1._characterList.FindIndex(cl => cl._id == id);
+                if (index != -1)
                 {
-                    bombermanMonoControl1._characterList[id]._position.X = x;
-                    bombermanMonoControl1._characterList[id]._position.Y = y;
-                    bombermanMonoControl1._characterList[id].UpdateAnimation(bombermanMonoControl1.Editor.GameTime, direction);
+                    if (bombermanMonoControl1._characterList[index]._position.X != x || bombermanMonoControl1._characterList[index]._position.Y != y)
+                    {
+                        bombermanMonoControl1._characterList[index]._position.X = x;
+                        bombermanMonoControl1._characterList[index]._position.Y = y;
+                        bombermanMonoControl1._characterList[index].UpdateAnimation(bombermanMonoControl1.Editor.GameTime, direction);
+                    }
                 }
             }
         }
 
         public void AssignCharacter(int id)
         {
-            bombermanMonoControl1._characterList[id]._possessed = true;
+            int index = CharacterIDToIndex(id);
+            if (index != -1)
+            {
+                bombermanMonoControl1._characterList[index]._possessed = true;
+            }
         }
 
-        public void CreateCharacter(int r, int g, int b)
+        public void CreateCharacter(int id, int r, int g, int b)
         {
-            bombermanMonoControl1.CreateCharacter(r, g, b);
+            bombermanMonoControl1.CreateCharacter(id, r, g, b);
+        }
+
+        public void RemoveCharacter(int id)
+        {
+            int index = CharacterIDToIndex(id);
+            if (index != -1)
+            {
+                bombermanMonoControl1.RemoveCharacet(index);
+            }
         }
 
         private void bombermanMonoControl1_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyCode == Keys.Space)
             {
-                if (bombermanMonoControl1._characterList[client._playerId]._canSpawnBomb)
+                int index = bombermanMonoControl1._characterList.FindIndex(cl => cl._id == client._playerId);
+                if (index != -1)
                 {
-                    bombermanMonoControl1.SpawnBomb(bombermanMonoControl1._characterList[client._playerId]._position, client._playerId);
-                    bombermanMonoControl1._characterList[client._playerId]._canSpawnBomb = false;
-                    client.SendPacketUDP(new Packets.SpawnBombPacket(bombermanMonoControl1._characterList[client._playerId]._position.X, bombermanMonoControl1._characterList[client._playerId]._position.Y, client._playerId));
+                    if (bombermanMonoControl1._characterList[index]._canSpawnBomb)
+                    {
+                        bombermanMonoControl1.SpawnBomb(bombermanMonoControl1._characterList[index]._position, client._playerId);
+                        bombermanMonoControl1._characterList[index]._canSpawnBomb = false;
+                        client.SendPacketUDP(new Packets.SpawnBombPacket(bombermanMonoControl1._characterList[index]._position.X, bombermanMonoControl1._characterList[index]._position.Y, client._playerId));
+                    }
                 }
+            }
+
+            if (e.KeyCode == Keys.E)
+            {
+                client.SendPacketTCP(new Packets.RemoveCharacterPacket(client._playerId));
             }
         }
 
         public void SpawnBomb(float posX, float posY, int playerID)
         {
             bombermanMonoControl1.SpawnBomb(posX, posY, playerID);
+        }
+
+        public int CharacterIDToIndex(int id)
+        {
+            return bombermanMonoControl1._characterList.FindIndex(cl => cl._id == id);
         }
     }
 }
