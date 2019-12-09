@@ -109,9 +109,10 @@ namespace SimpleServer
             SendPacketTCP(new LoginPacket(_udpClient.Client.LocalEndPoint, _playerId));
             // Send initial nickname of the client
             SendPacketTCP(new NicknamePacket(_nickname));
+
             // Send that you'd like an character
-            Random random = new Random();
-            SendPacketTCP(new CreateCharacterPacket(_playerId, random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
+            //Random random = new Random();
+            //SendPacketTCP(new CreateCharacterPacket(_playerId, random.Next(0, 255), random.Next(0, 255), random.Next(0, 255)));
         }
 
         void ProcessServerResponseTCP()
@@ -142,6 +143,20 @@ namespace SimpleServer
                         _udpReaderThread = new Thread(new ThreadStart(ProcessServerResponseReadUDP));
                         _udpReaderThread.Start();
                         Console.WriteLine("UDP CONNECTED!");
+                        break;
+
+                    case PacketType.JOINGAME:
+                        JoinGamePacket joinGamePacket = (JoinGamePacket)packet;
+                        _messageForm.UpdateJoinGameButton(joinGamePacket._nickname, joinGamePacket._buttonID);
+                        break;
+
+                    case PacketType.STARTGAMEBUTTON:
+                        StartGameButtonPacket startGamePacket = (StartGameButtonPacket)packet;
+                        _messageForm.EnableStartGameButton(startGamePacket._canStartGame);
+                        break;
+
+                    case PacketType.STARTGAME:
+                        _messageForm.StartGame();
                         break;
 
                     case PacketType.CREATECHARACTER:

@@ -9,8 +9,14 @@ namespace SimpleServer
     {
         delegate void UpdateChatWindowDelegate(string nickname, string message);
         delegate void UpdateNicknamesListDelegate(ref List<string> nicknamesList);
+        delegate void UpdateGameJoinButtonDelegate(string nickname, int buttonID);
+        delegate void UpdateGameStartButtonDelegate(bool state);
+        delegate void StartGameDelegate();
         UpdateChatWindowDelegate updateChatWindowDelegate;
         UpdateNicknamesListDelegate updateNicknamesDelegate;
+        UpdateGameJoinButtonDelegate updateGameJoinButtonDelegate;
+        UpdateGameStartButtonDelegate updateGameStartButtonDelegate;
+        StartGameDelegate startGameDelegate;
         SimpleClient client;
 
         public ClientForm(SimpleClient client)
@@ -19,6 +25,9 @@ namespace SimpleServer
             InitializeComponent();
             updateChatWindowDelegate = new UpdateChatWindowDelegate(UpdateChatWindow);
             updateNicknamesDelegate = new UpdateNicknamesListDelegate(UpdateNicknamesList);
+            updateGameJoinButtonDelegate = new UpdateGameJoinButtonDelegate(UpdateJoinGameButton);
+            updateGameStartButtonDelegate = new UpdateGameStartButtonDelegate(EnableStartGameButton);
+            startGameDelegate = new StartGameDelegate(StartGame);
             chatSendBox.Select();
         }
 
@@ -133,6 +142,89 @@ namespace SimpleServer
             messageDisplayBox.Text += "\n--------------------------------------------------------------------------------------------------------------";
         }
 
+        private void JoinGameButton1_MouseClick(object sender, MouseEventArgs e)
+        {
+            client.SendPacketTCP(new Packets.JoinGamePacket(client._playerId, client._nickname, 1));
+        }
+
+        private void JoinGameButton2_MouseClick(object sender, MouseEventArgs e)
+        {
+            client.SendPacketTCP(new Packets.JoinGamePacket(client._playerId, client._nickname, 2));
+        }
+
+        private void JoinGameButton3_Click(object sender, EventArgs e)
+        {
+            client.SendPacketTCP(new Packets.JoinGamePacket(client._playerId, client._nickname, 3));
+        }
+
+        private void JoinGameButton4_Click(object sender, EventArgs e)
+        {
+            client.SendPacketTCP(new Packets.JoinGamePacket(client._playerId, client._nickname, 4));
+        }
+
+        public void UpdateJoinGameButton(string nickname, int buttonID)
+        {
+            if (GameLobbyPanel.InvokeRequired)
+            {
+                Invoke(updateGameJoinButtonDelegate, nickname, buttonID);
+            }
+            else
+            {
+                switch (buttonID)
+                {
+                    case 1:
+                        JoinGameButton1.Text = nickname;
+                        JoinGameButton1.Enabled = false;
+                        break;
+                    case 2:
+                        JoinGameButton2.Text = nickname;
+                        JoinGameButton2.Enabled = false;
+                        break;
+                    case 3:
+                        JoinGameButton3.Text = nickname;
+                        JoinGameButton3.Enabled = false;
+                        break;
+                    case 4:
+                        JoinGameButton4.Text = nickname;
+                        JoinGameButton4.Enabled = false;
+                        break;
+
+                    default:
+                        break;
+                }
+            }    
+        }
+
+        public void EnableStartGameButton(bool state)
+        {
+            if (GameLobbyPanel.InvokeRequired)
+            {
+                Invoke(updateGameStartButtonDelegate, state);
+            }
+            else
+            {
+                StartGameButton.Enabled = state;
+            }
+        }
+
+        private void StartGameButton_Click(object sender, EventArgs e)
+        {
+            client.SendPacketTCP(new Packets.StartGamePacket(true));
+        }
+
+        public void StartGame()
+        {
+            if (GameLobbyPanel.InvokeRequired)
+            {
+                Invoke(startGameDelegate);
+            }
+            else
+            {
+                GameLobbyPanel.Enabled = false;
+                GameLobbyPanel.Visible = false;
+            }
+        }
+
         //
         ////  GAME RELATED
         //
@@ -226,6 +318,5 @@ namespace SimpleServer
                 bombermanMonoControl1._charactersToDelete.Remove(ctd);
             });
         }
-
     }
 }

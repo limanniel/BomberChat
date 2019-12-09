@@ -12,6 +12,9 @@ namespace Packets
         DIRECTMESSAGE,
         LOGIN,
         NICKNAMESLIST,
+        JOINGAME,
+        STARTGAMEBUTTON,
+        STARTGAME,
         CHARACTERPOSITION,
         ASSIGNCHARACTER,
         CREATECHARACTER,
@@ -90,6 +93,43 @@ namespace Packets
     }
 
     [Serializable]
+    public class JoinGamePacket : Packet
+    {
+        public int _id;
+        public string _nickname;
+        public int _buttonID;
+        public JoinGamePacket(int id, string nickname, int buttonID)
+        {
+            _type = PacketType.JOINGAME;
+            _id = id;
+            _nickname = nickname;
+            _buttonID = buttonID;
+        }
+    }
+
+    [Serializable]
+    public class StartGameButtonPacket : Packet
+    {
+        public bool _canStartGame;
+        public StartGameButtonPacket(bool startGameState)
+        {
+            _type = PacketType.STARTGAMEBUTTON;
+            _canStartGame = startGameState;
+        }
+    }
+
+    [Serializable]
+    public class StartGamePacket : Packet
+    {
+        public bool _startGame;
+        public StartGamePacket(bool state)
+        {
+            _type = PacketType.STARTGAME;
+            _startGame = state;
+        }
+    }
+
+    [Serializable]
     public class CharacterPositionPacket : Packet
     {
         public int _id;
@@ -108,9 +148,11 @@ namespace Packets
     [Serializable]
     public class AssignCharacterPacket : Packet
     {
-        public AssignCharacterPacket()
+        public int _playerID;
+        public AssignCharacterPacket(int playerID)
         {
             _type = PacketType.ASSIGNCHARACTER;
+            _playerID = playerID;
         }
     }
 
