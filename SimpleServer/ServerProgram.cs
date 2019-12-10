@@ -143,6 +143,7 @@ namespace SimpleServer
 
                                     if (indexes != -1)
                                     {
+                                        client.SendPacketTCP(new DirectMessagePacket("[SERVER] whispered to " + _clients[indexes]._nickname + ":", message), client);
                                         _clients[indexes].SendPacketTCP(new DirectMessagePacket("[DIRECT MESSAGE] " + client._nickname, message), _clients[indexes]);
                                     }
                                     else

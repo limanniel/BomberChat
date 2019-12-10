@@ -81,7 +81,6 @@ namespace SimpleServer
                 {
                     NicknamesList.Items.Add(nickname);
                 }
-
             }
         }
 
