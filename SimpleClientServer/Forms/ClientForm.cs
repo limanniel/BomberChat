@@ -86,12 +86,20 @@ namespace SimpleServer
 
         private void ClientForm_Load(object sender, EventArgs e)
         {
-            client.Run();
+            //client.Run();
         }
 
         private void ClientForm_FormClosed(object sender, FormClosedEventArgs e)
         {
-            client.Stop();
+            //client.Stop();
+        }
+
+        private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            client.SendPacketTCP(new Packets.ExitPacket());
+            client._udpReadThreadExit = true;
+            client._udpWriteThreadExit = true;
+            client._tcpThreadExit = true;
         }
 
         private void SendMessageButton_Click(object sender, EventArgs e)

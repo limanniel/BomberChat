@@ -85,7 +85,7 @@ namespace Bomberman
         public void ExplosionCheck(int bombID)
         {
             Rectangle bombRect = new Rectangle((int)_bombList[bombID]._position.X, (int)_bombList[bombID]._position.Y, 64, 64);
-            _characterList.ForEach(cl =>
+            _characterList.ToList().ForEach(cl =>
             {
                 Rectangle characterRect = new Rectangle((int)cl._position.X, (int)cl._position.Y, 52, 90);
                 if (bombRect.Intersects(characterRect))

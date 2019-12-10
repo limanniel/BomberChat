@@ -61,13 +61,13 @@ namespace SimpleServer
         Socket _tcpSocket;
         IPAddress _iPAddress;
         List<Client> _clients;
+        List<Character> _characters;
         List<string> _clientsNicknames;
         List<ActivePlayer> _playersInGame;
         Hangman _hangmanGame;
         bool _isHangmanActive;
         bool _isGameActive;
         int _count;
-        List<Character> _characters;
 
         public Server(string ipAddress, int port)
         {
@@ -100,9 +100,10 @@ namespace SimpleServer
                 if (_tcpSocket.Connected)
                 {
                     Console.WriteLine("Connection established!");
-                    Client c = new Client(_tcpSocket);
-                    _clients.Add(c);
                     Thread t = new Thread(new ParameterizedThreadStart(TCPClientMethod));
+                    t.Name = "TCP THREAD";
+                    Client c = new Client(_tcpSocket, ref t);
+                    _clients.Add(c);
                     t.Start(c);
 
                     Console.WriteLine("Clients: " + _clients.Count);
@@ -361,15 +362,48 @@ namespace SimpleServer
                             break;
                         #endregion
 
+                        #region Client Disconnect
+                        case PacketType.EXIT:
+                            _clients.Remove(client);
+                            Console.WriteLine("Client Disconnected!");
+                            Console.WriteLine("Clients: " + _clients.Count);
+                            UpdateClientsNicknameList();
+                            // Finish up operations on threads and leave them
+                            client._udpThreadReadExit = true;
+                            if (client._udpThreadRead != null)
+                                client._udpThreadRead.Join();
+
+                            client._udpThreadWriteExit = true;
+                            if (client._udpThreadWrite != null)
+                                client._udpThreadWrite.Join();
+
+                            client.SendPacketTCP(new ExitPacket(), client);
+                            client._tcpThreadref.Join();
+                            // Close connections on client
+                            client.Close();
+                            break;
+                        #endregion
+
                         default:
                             break;
                     }
                 }
             }
+            // Lost connection with client without graceful exit
             catch (EndOfStreamException)
             {
+                client._udpThreadReadExit = true;
+                if (client._udpThreadRead != null)
+                    client._udpThreadRead.Join();
+
+                client._udpThreadWriteExit = true;
+                if (client._udpThreadWrite != null)
+                    client._udpThreadWrite.Join();
+
+                client._tcpThreadref.Join();
                 client.Close();
                 _clients.Remove(client);
+
                 Console.WriteLine("Client Disconnected!");
                 Console.WriteLine("Clients: " + _clients.Count);
                 UpdateClientsNicknameList();
@@ -382,17 +416,19 @@ namespace SimpleServer
             client.UDPConnect(loginpacket._endPoint);
             client.SendPacketTCP(new LoginPacket(client._udpSocket.LocalEndPoint, _count), client);
             _count++;
-            Thread w = new Thread(new ParameterizedThreadStart(UDPClientWriteMethod));
-            Thread r = new Thread(new ParameterizedThreadStart(UDPClientReadMethod));
-            w.Start(client);
-            r.Start(client);
+            client._udpThreadRead = new Thread(new ParameterizedThreadStart(UDPClientReadMethod));
+            client._udpThreadRead.Name = "UDP READ THREAD";
+            client._udpThreadWrite = new Thread(new ParameterizedThreadStart(UDPClientWriteMethod));
+            client._udpThreadWrite.Name = "UDP WRITE THREAD";
+            client._udpThreadRead.Start(client);
+            client._udpThreadWrite.Start(client);
         }
 
         private void UDPClientWriteMethod(object clientObj)
         {
             Client client = (Client)clientObj;
 
-            while (true)
+            while (!client._udpThreadWriteExit)
             {
                 // Keep pinging nickname list to clients
                 client.UDPSend(new NicknamesListPacket(_clientsNicknames));
@@ -411,9 +447,10 @@ namespace SimpleServer
         {
             Client client = (Client)clientObj;
             Packet packet;
-            while (true)
+
+            while (!client._udpThreadReadExit)
             {
-                packet = client.UDPRead(client);
+                packet = client.UDPRead();
                 switch (packet.getPacketType())
                 {
                     case PacketType.CHARACTERPOSITION:
@@ -454,24 +491,33 @@ namespace SimpleServer
         Socket _socket;
         NetworkStream _stream;
         public Socket _udpSocket;
+        public Thread _tcpThreadref;
+        public Thread _udpThreadRead;
+        public Thread _udpThreadWrite;
+        public bool _udpThreadReadExit;
+        public bool _udpThreadWriteExit;
 
         public string _nickname { get; set; }
         public int _id { get; set; }
         public BinaryReader Reader { get; private set; }
         public BinaryWriter Writer { get; private set; }
 
-        public Client(Socket socket)
+        public Client(Socket socket, ref Thread tcpThreadRef)
         {
             _socket = socket;
+            _tcpThreadref = tcpThreadRef;
             _udpSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
             _stream = new NetworkStream(socket);
             Reader = new BinaryReader(_stream, Encoding.UTF8);
             Writer = new BinaryWriter(_stream, Encoding.UTF8);
+            _udpThreadReadExit = false;
+            _udpThreadWriteExit = false;
         }
 
         public void Close()
         {
             _socket.Close();
+            _udpSocket.Close();
         }
 
         public void UDPConnect(EndPoint clientConnection)
@@ -489,17 +535,21 @@ namespace SimpleServer
             _udpSocket.Send(buffer);
         }
 
-        public Packet UDPRead(Client client)
+        public Packet UDPRead()
         {
-            byte[] buffer = new byte[1024];
-            if (_udpSocket.Receive(buffer) != 0)
+            if (_udpSocket.Connected)
             {
-                MemoryStream ms = new MemoryStream(buffer);
-                BinaryFormatter bf = new BinaryFormatter();
-                Packet packet = (Packet)bf.Deserialize(ms);
-                return packet;
+                byte[] buffer = new byte[1024];
+                if (_udpSocket.Receive(buffer) != 0)
+                {
+                    MemoryStream ms = new MemoryStream(buffer);
+                    BinaryFormatter bf = new BinaryFormatter();
+                    Packet packet = (Packet)bf.Deserialize(ms);
+                    return packet;
+                }
+                return new Packet();
             }
-            return null;    
+            return new Packet();
         }
 
         public Packet RetrievePacketTCP(Client client)

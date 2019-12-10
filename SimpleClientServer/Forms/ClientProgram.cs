@@ -20,7 +20,6 @@ namespace SimpleServer
             if (myClient.Connect("127.0.0.1", 4444))
             {
                 Console.WriteLine("CONNECTED!");
-                myClient.Run();
             }
             else
             {
@@ -41,18 +40,25 @@ namespace SimpleServer
 
         // TCP
         TcpClient _tcpClient;
-        Thread _tcpReaderThread;
+        Thread _tcpProcessThread;
         NetworkStream _tcpStream;
         BinaryWriter _tcpWriter;
         BinaryReader _tcpReader;
+        public bool _tcpThreadExit;
+
         // UDP
         UdpClient _udpClient;
         Thread _udpReaderThread;
         Thread _udpWriterThread;
         IPEndPoint _remoteIpEndPoint;
+        public bool _udpReadThreadExit;
+        public bool _udpWriteThreadExit;
 
         public SimpleClient()
         {
+            _tcpThreadExit = false;
+            _udpWriteThreadExit = false;
+            _udpReadThreadExit = false;
             _nicknamesList = new List<string>();
             _localCharactersIds = new List<int>();
             _localCharactersIds.Add(-1); // Init list with default value so can be evaluated
@@ -65,7 +71,8 @@ namespace SimpleServer
         {
             _tcpClient = new TcpClient();
             _udpClient = new UdpClient();
-            _tcpReaderThread = new Thread(new ThreadStart(ProcessServerResponseTCP));
+            _tcpProcessThread = new Thread(new ThreadStart(ProcessServerResponseTCP));
+            _tcpProcessThread.Name = "TCP Process Thread";
 
             // Display Set Nickname window
             _nicknameForm.Owner = _messageForm;
@@ -90,10 +97,10 @@ namespace SimpleServer
                 return false;
             }
 
-            // Display Chat window
-            Application.Run(_messageForm);
+            // Launch tcp thread and login to the server
+            InitStart();
 
-            if (!_tcpReaderThread.IsAlive)
+            if (!_tcpProcessThread.IsAlive)
             {
                 return false;
             }
@@ -101,22 +108,27 @@ namespace SimpleServer
             return true;
         }
 
-        public void Run()
+        public void InitStart()
         {
-            Console.WriteLine("STARTED");
-            _tcpReaderThread.Start();
+            _tcpProcessThread.Start();
             // Log-in UDP
             SendPacketTCP(new LoginPacket(_udpClient.Client.LocalEndPoint, _playerId));
+
             // Send initial nickname of the client
             SendPacketTCP(new NicknamePacket(_nickname));
+
+            // Display Chat Form
+            Application.Run(_messageForm);
         }
 
         void ProcessServerResponseTCP()
         {
             Packet packet;
 
-            while ((packet = RetrievePacketTCP()) != null)
+            while (!_tcpThreadExit)
             {
+                packet = RetrievePacketTCP();
+
                 switch (packet.getPacketType())
                 {
                     #region Chat Message
@@ -144,8 +156,15 @@ namespace SimpleServer
                         _playerId = loginPacket._id;
                         _udpClient.Connect((IPEndPoint)loginPacket._endPoint);
                         _udpReaderThread = new Thread(new ThreadStart(ProcessServerResponseReadUDP));
+                        _udpReaderThread.Name = "UDP Reader Thread";
                         _udpReaderThread.Start();
                         Console.WriteLine("UDP CONNECTED!");
+                        break;
+                    #endregion
+
+                    #region Disconnect
+                    case PacketType.EXIT:
+                        Stop();
                         break;
                     #endregion
 
@@ -196,7 +215,6 @@ namespace SimpleServer
                         {
                             _udpWriterThread = new Thread(new ThreadStart(ProcessServerResponseWriteUDP));
                             _udpWriterThread.Start();
-
                         }
                         break;
                     #endregion
@@ -237,62 +255,65 @@ namespace SimpleServer
         void ProcessServerResponseReadUDP()
         {
             Packet packet;
-            if (_udpClient.Client.Connected)
+
+            while (!_udpReadThreadExit)
             {
-                while((packet = ReadPacketUDP(ref _remoteIpEndPoint)) != null)
+                packet = ReadPacketUDP(ref _remoteIpEndPoint);
+                if (_udpReadThreadExit)
+                    break;
+
+                // Process received udp packet
+                switch (packet.getPacketType())
                 {
-                    // Process received udp packet
-                    switch (packet.getPacketType())
-                    {
-                        case PacketType.NICKNAMESLIST:
-                            // Update local nicklist only if it's different from server one
-                            NicknamesListPacket nicknameListPacket = packet as NicknamesListPacket;
-                            if (!_nicknamesList.SequenceEqual(nicknameListPacket._nicknamesList))
-                            {
-                                _nicknamesList = nicknameListPacket._nicknamesList;
-                                _messageForm.UpdateNicknamesList(ref _nicknamesList);
-                            }
-                            break;
+                    case PacketType.NICKNAMESLIST:
+                        // Update local nicklist only if it's different from server one
+                        NicknamesListPacket nicknameListPacket = packet as NicknamesListPacket;
+                        if (!_nicknamesList.SequenceEqual(nicknameListPacket._nicknamesList))
+                        {
+                            _nicknamesList = nicknameListPacket._nicknamesList;
+                            _messageForm.UpdateNicknamesList(ref _nicknamesList);
+                        }
+                        break;
 
-                        case PacketType.CHARACTERPOSITION:
-                            CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
-                            //Console.WriteLine("Character position packet!: " + characterPositionPacket._x + " " + characterPositionPacket._y);
-                            _messageForm.UpdateCharacterPosition(characterPositionPacket._id, characterPositionPacket._x, characterPositionPacket._y, characterPositionPacket._direction);
-                            break;
+                    case PacketType.CHARACTERPOSITION:
+                        CharacterPositionPacket characterPositionPacket = (CharacterPositionPacket)packet;
+                        //Console.WriteLine("Character position packet!: " + characterPositionPacket._x + " " + characterPositionPacket._y);
+                        _messageForm.UpdateCharacterPosition(characterPositionPacket._id, characterPositionPacket._x, characterPositionPacket._y, characterPositionPacket._direction);
+                        break;
 
-                        default:
-                            break;
-                    }
+                    default:
+                        break;
                 }
-
             }
         }
 
         void ProcessServerResponseWriteUDP()
         {
-            while (_udpClient.Client.Connected)
+            while (!_udpWriteThreadExit)
             {
                 if (_messageForm.CheckIfThereAreCharactersToDelete())
                 {
                     _messageForm.DeleteCharacters();
                 }
 
-                try
+                if (_localCharactersIds.Contains(_playerId))
                 {
-                    if (_localCharactersIds.Contains(_playerId))
+                    lock (_messageForm.bombermanMonoControl1._characterList)
                     {
-                        int index = _messageForm.bombermanMonoControl1._characterList.FindIndex(cl => cl._id == _playerId);
-                        //Keep Sending Character Position
-                        if (_messageForm.bombermanMonoControl1._characterList[index]._isMoving)
+                        int index = _messageForm.bombermanMonoControl1._characterList.ToList().FindIndex(cl => cl._id == _playerId);
+                        if (index != -1)
                         {
-                            SendPacketUDP(new CharacterPositionPacket(_playerId, _messageForm.bombermanMonoControl1._characterList[index]._position.X, _messageForm.bombermanMonoControl1._characterList[index]._position.Y, _messageForm.bombermanMonoControl1._characterList[index]._direction));
+                            //Keep Sending Character Position
+                            if (_messageForm.bombermanMonoControl1._characterList[index]._isMoving)
+                            {
+                                SendPacketUDP(new CharacterPositionPacket(_playerId, _messageForm.bombermanMonoControl1._characterList[index]._position.X, _messageForm.bombermanMonoControl1._characterList[index]._position.Y, _messageForm.bombermanMonoControl1._characterList[index]._direction));
+                            }
                         }
+
                     }
                 }
-                catch
-                {
 
-                }
+                Thread.Sleep(10);
             }
         }
 
@@ -313,9 +334,14 @@ namespace SimpleServer
 
         public void Stop()
         {
-            _udpReaderThread.Abort();
-            _tcpReaderThread.Abort();
+            _udpReaderThread.Join();
+            if (_udpWriterThread != null)
+                _udpWriterThread.Join();
+
+            _udpClient.Close();
+            _tcpProcessThread.Join();
             _tcpClient.Close();
+            _messageForm.Close();
         }
 
         public void SendPacketTCP(Packet packet)
@@ -342,7 +368,8 @@ namespace SimpleServer
                 Packet packet = (Packet)bf.Deserialize(ms);
                 return packet;
             }
-            return null;
+
+            return new Packet();
         }
 
         public void SendPacketUDP(Packet packet)

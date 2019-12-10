@@ -11,6 +11,7 @@ namespace Packets
         CHATMESSAGE,
         DIRECTMESSAGE,
         LOGIN,
+        EXIT,
         NICKNAMESLIST,
         JOINGAME,
         STARTGAMEBUTTON,
@@ -28,6 +29,15 @@ namespace Packets
     {
         protected PacketType _type = PacketType.EMPTY;
         public PacketType getPacketType() { return _type; }
+    }
+
+    [Serializable]
+    public class ExitPacket : Packet
+    {
+        public ExitPacket()
+        {
+            _type = PacketType.EXIT;
+        }
     }
 
     [Serializable]
