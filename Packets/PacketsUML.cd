@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Packets.Packet">
+    <Position X="16.25" Y="4.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAgAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.ExitPacket">
+    <Position X="14" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.ChatMessagePacket">
+    <Position X="20.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAgAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.DirectMessagePacket">
+    <Position X="20.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.NicknamePacket">
+    <Position X="14" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.LoginPacket">
+    <Position X="7.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAABAAAAAAAAAIAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.NicknamesListPacket">
+    <Position X="16.25" Y="2.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.JoinGamePacket">
+    <Position X="23" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAABAQAAAAAAAAAAAAAAAAgAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.StartGameButtonPacket">
+    <Position X="18.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.StartGamePacket">
+    <Position X="11.75" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.RestartGamePacket">
+    <Position X="9.5" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.CharacterPositionPacket">
+    <Position X="18.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAQAAAAAAABAAAAAAAAAAAAAAAAIAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.AssignCharacterPacket">
+    <Position X="23" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAQAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.CreateCharacterPacket">
+    <Position X="16.25" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAIAAAAAAAAAABAAAAAAAAAAAAAAAAACAAAQAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.RemoveCharacterPacket">
+    <Position X="9.5" Y="7" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Packets.SpawnBombPacket">
+    <Position X="11.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAABAAAAAAAAgAAAAAAAAAAAAQAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="Packets.PacketType">
+    <Position X="25.25" Y="3.75" Width="2" />
+    <TypeIdentifier>
+      <HashCode>AAAIAhIAAAAAEAAIACAASAACUAAAEAEAAAAAAAAAiAA=</HashCode>
+      <FileName>Packets.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

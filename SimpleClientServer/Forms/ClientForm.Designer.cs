@@ -271,8 +271,6 @@ namespace SimpleServer
             this.Name = "ClientForm";
             this.Text = "Chat Window";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ClientForm_FormClosing);
-            this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.ClientForm_FormClosed);
-            this.Load += new System.EventHandler(this.ClientForm_Load);
             this.GameLobbyPanel.ResumeLayout(false);
             this.GameLobbyPanel.PerformLayout();
             this.ResumeLayout(false);

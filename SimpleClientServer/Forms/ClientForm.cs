@@ -84,16 +84,6 @@ namespace SimpleServer
             }
         }
 
-        private void ClientForm_Load(object sender, EventArgs e)
-        {
-            //client.Run();
-        }
-
-        private void ClientForm_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            //client.Stop();
-        }
-
         private void ClientForm_FormClosing(object sender, FormClosingEventArgs e)
         {
             client.SendPacketTCP(new Packets.ExitPacket());

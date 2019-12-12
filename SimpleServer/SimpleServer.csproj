@@ -49,6 +49,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+    <None Include="ServerUML.cd" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Packets\Packets.csproj">
