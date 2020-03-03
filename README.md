@@ -1,3 +1,2 @@
 # CNA
-
-Concurrent Network Applications - Semester 1 Assignment - C# + .Net Chat Application
+Chat Application + Bomberman multiplayer game created for "Concurrent Network Applications" module for my second year of degree
